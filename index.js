@@ -58,7 +58,7 @@ module.exports = async (waw) => {
 					{
 						...waw.config,
 						title: "Products | Wawify",
-						description: waw.config.productDescription
+						description: waw.config.productDescription,
 						products,
 						categories: await waw.tag_groups('product')
 					},
