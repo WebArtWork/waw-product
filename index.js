@@ -58,8 +58,7 @@ module.exports = async (waw) => {
 					{
 						...waw.config,
 						title: "Products | Wawify",
-						description:
-							"On our website, you can explore the list of items available for purchase. In our catalog, you will find a wide selection of products, including clothing, accessories, and much more. You can easily browse through the products by categories, using filters and search tools. We aim to provide you with a convenient and enjoyable shopping experience where you can find everything you need.",
+						description: waw.config.articleDescription
 						products,
 						categories: await waw.tag_groups('product')
 					},
