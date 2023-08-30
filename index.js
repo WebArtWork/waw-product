@@ -57,8 +57,9 @@ module.exports = async (waw) => {
 					path.join(template, "dist", "products.html"),
 					{
 						...waw.config,
-						title: "Products | Wawify",
-						description: waw.config.productDescription,
+						title: waw.config.productTitle|| waw.config.title,
+                                                description: waw.config.productDescription || waw.config.description,
+                                                image: waw.config.productImage|| waw.config.image,
 						products,
 						categories: await waw.tag_groups('product')
 					},
