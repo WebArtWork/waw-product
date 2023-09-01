@@ -27,7 +27,7 @@ module.exports = async (waw) => {
 	};
 
 	waw.product = async (query) => {
-		return await Product.findOne(query);
+		return await waw.Product.findOne(query);
 	};
 
 	waw.build(template, "products");
