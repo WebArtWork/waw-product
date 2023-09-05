@@ -3,9 +3,18 @@ const template = path.join(process.cwd(), "template");
 
 module.exports = async (waw) => {
 	waw.crud("product", {
-		get: {
-			ensure: waw.next,
-		},
+		get: [
+			{
+				ensure: waw.next
+			},
+			{
+				name: 'public',
+				ensure: waw.next,
+				query: ()=>{
+					return {};
+				}
+			}
+		],
 		fetch: {
 			ensure: waw.next,
 			query: (req) => {
