@@ -70,7 +70,7 @@ module.exports = async (waw) => {
                                                 description: waw.config.productDescription || waw.config.description,
                                                 image: waw.config.productImage|| waw.config.image,
 						products,
-						categories: await waw.tag_groups('product')
+						groups: waw.tag_groups('product')
 					},
 					waw.translate(req)
 				)
@@ -95,8 +95,7 @@ module.exports = async (waw) => {
 					...waw.config,
 					product,
 					products,
-					title: product.title + " | Wawify",
-					categories: await waw.tag_groups('product')
+					title: product.title + " | Wawify"
 				})
 			);
 		}
