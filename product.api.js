@@ -126,7 +126,7 @@ module.exports = async (waw) => {
 			}
 		}
 	});
-	await waw.wait(100);
+	await waw.wait(2000);
    if (waw.store_landing) {
     waw.store_landing.products = async (query)=>{
          return await waw.products(query, 4);
