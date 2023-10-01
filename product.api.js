@@ -85,8 +85,12 @@ module.exports = async (waw) => {
 			waw.serve_product[req.get("host")](req, res);
 		} else {
 			const product = await waw.product({
-				_id: req.params._id,
+				_id: req.params._id
 			});
+
+			if (!product) {
+				return res.redirect('/products');
+			}
 
 			const products = await waw.products({}, 6);
 
