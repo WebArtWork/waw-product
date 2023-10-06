@@ -23,6 +23,23 @@ module.exports = async (waw) => {
 				};
 			},
 		},
+		create: {
+			ensure: async (req, res, next) => {
+				if (req.body.name) {
+					req.body.url = req.body.name
+						.toLowerCase()
+						.replace(/[^a-z0-9]/g, "");
+				}
+				while (await waw.Product.count({ url: req.body.url })) {
+					const url = req.body.url.split("_");
+					req.body.url =
+						url[0] +
+						"_" +
+						(url.length > 1 ? Number(url[1]) + 1 : 1);
+				}
+				next();
+			}),
+		}
 	});
 
 	waw.products = async (query = {}, limit, count = false) => {
@@ -84,9 +101,11 @@ module.exports = async (waw) => {
 		if (typeof waw.serve_product[req.get("host")] === "function") {
 			waw.serve_product[req.get("host")](req, res);
 		} else {
-			const product = await waw.product({
-				_id: req.params._id
-			});
+			const product = await waw.product(
+			waw.mongoose.Types.ObjectId.isValid(req.params._id)
+				? { _id: req.params._id }
+				: { url: req.params._id }
+			);
 
 			if (!product) {
 				return res.redirect('/products');
