@@ -38,7 +38,7 @@ module.exports = async (waw) => {
 						(url.length > 1 ? Number(url[1]) + 1 : 1);
 				}
 				next();
-			}),
+			}
 		}
 	});
 
