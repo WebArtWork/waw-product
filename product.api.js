@@ -119,7 +119,9 @@ module.exports = async (waw) => {
 					product,
 					products,
 					title: product.title + " | Wawify"
-				})
+				},
+				 waw.translate(req)
+					  )
 			);
 		}
 	});
