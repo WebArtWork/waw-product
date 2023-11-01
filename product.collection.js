@@ -6,6 +6,11 @@ module.exports = function(waw) {
 		name: String,
 		short: String,
 		description: String,
+		isTemplate: Boolean,
+ 		template: {
+			type: waw.mongoose.Schema.Types.ObjectId,
+			ref: "Product",
+		},
 		url: { type: String, sparse: true, trim: true, unique: true },
 		price: Number,
 		data: {},
