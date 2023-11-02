@@ -1,11 +1,11 @@
 {
-	"repo" : "git@github.com:WebArtWork/waw-product.git",
-    "name": "Product",
-    "crud": {
-    "get": ["", "public"],
-    "unique": [ "url" ],
-    "update": {
-    "keys": [
+	"repo": "git@github.com:WebArtWork/waw-product.git",
+	"name": "Product",
+	"crud": {
+		"get": ["", "public", "crafts"],
+		"unique": ["url"],
+		"update": {
+			"keys": [
 				"thumb",
 				"thumbs",
 				"name",
@@ -15,9 +15,9 @@
 				"tag",
 				"sale",
 				"data"
-            ]
-        },
-        "delete": [""]
-    },
-    "dependencies": {}
+			]
+		},
+		"delete": [""]
+	},
+	"dependencies": {}
 }
