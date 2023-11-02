@@ -2,7 +2,7 @@ const path = require("path");
 const template = path.join(process.cwd(), "template");
 
 module.exports = async (waw) => {
-	waw.crud("product", {
+		waw.crud("product", {
 		get: [
 			{
 				ensure: waw.next
@@ -12,6 +12,15 @@ module.exports = async (waw) => {
 				ensure: waw.next,
 				query: ()=>{
 					return {};
+				}
+			},
+			{
+				name: 'crafts',
+				ensure: waw.next,
+				query: () => {
+					return {
+						isTemplate: true
+					};
 				}
 			}
 		],
