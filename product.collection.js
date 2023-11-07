@@ -56,7 +56,7 @@ module.exports = function(waw) {
 
 		this.isTemplate = obj.isTemplate;
 
-		this.template = obj.trmplate;
+		this.template = obj.template;
 	}
 
 	return waw.Product = waw.mongoose.model('Product', Schema);
