@@ -38,7 +38,6 @@ module.exports = async (waw) => {
 					}
 				},
 				query: (req) => {
-						console.log(req.crafts_ids);
 					return {
 						template: {
 							$in: req.crafts_ids
