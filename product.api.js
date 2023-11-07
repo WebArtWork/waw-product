@@ -25,15 +25,23 @@ module.exports = async (waw) => {
 			},
 			{
 				name: 'links',
-				query: async (req) => {
-					const ids = (await waw.Product.find({
-						moderator: req.user._id,
-						isTemplate: true
-					}).select('_id')).map(p => p._id);
+				ensure: async (req, res, next)=>{
+					if (req.user) {
+						req.crafts_ids = (await waw.Product.find({
+							moderators: req.user._id,
+							isTemplate: true
+						}).select('_id')).map(p => p.id);
 
+						next();
+					} else {
+						res.json([]);
+					}
+				},
+				query: (req) => {
+						console.log(req.crafts_ids);
 					return {
 						template: {
-							$in: ids
+							$in: req.crafts_ids
 						}
 					};
 				}
