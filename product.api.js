@@ -22,6 +22,21 @@ module.exports = async (waw) => {
 						isTemplate: true
 					};
 				}
+			},
+			{
+				name: 'links',
+				query: async (req) => {
+					const ids = (await waw.Product.find({
+						moderator: req.user._id,
+						isTemplate: true
+					}).select('_id')).map(p => p._id);
+
+					return {
+						template: {
+							$in: ids
+						}
+					};
+				}
 			}
 		],
 		fetch: {
