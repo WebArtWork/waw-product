@@ -2,7 +2,7 @@ const path = require("path");
 const template = path.join(process.cwd(), "template");
 
 module.exports = async (waw) => {
-		waw.crud("product", {
+	waw.crud("product", {
 		get: [
 			{
 				ensure: waw.next
@@ -10,7 +10,7 @@ module.exports = async (waw) => {
 			{
 				name: 'public',
 				ensure: waw.next,
-				query: ()=>{
+				query: () => {
 					return {};
 				}
 			},
@@ -25,7 +25,7 @@ module.exports = async (waw) => {
 			},
 			{
 				name: 'links',
-				ensure: async (req, res, next)=>{
+				ensure: async (req, res, next) => {
 					if (req.user) {
 						req.crafts_ids = (await waw.Product.find({
 							moderators: req.user._id,
@@ -44,8 +44,29 @@ module.exports = async (waw) => {
 						}
 					};
 				}
-			}
+			},
+			{
+				name: 'admin',
+				ensure: waw.role('admin'),
+				query: () => {
+					return {};
+				}
+			},
 		],
+		update: {
+			name: 'admin',
+			ensure: waw.role('admin'),
+			query: (req) => {
+				return { _id: req.body._id };
+			}
+		},
+		delete: {
+			name: 'admin',
+			ensure: waw.role('admin'),
+			query: (req) => {
+				return { _id: req.body._id };
+			}
+		},
 		fetch: {
 			ensure: waw.next,
 			query: (req) => {
@@ -61,19 +82,20 @@ module.exports = async (waw) => {
 						.toLowerCase()
 						.replace(/[^a-z0-9]/g, "");
 				}
-				if(req.body.url) {
-				while (await waw.Product.count({ url: req.body.url })) {
-					const url = req.body.url.split("_");
-					req.body.url =
-						url[0] +
-						"_" +
-						(url.length > 1 ? Number(url[1]) + 1 : 1);
+				if (req.body.url) {
+					while (await waw.Product.count({ url: req.body.url })) {
+						const url = req.body.url.split("_");
+						req.body.url =
+							url[0] +
+							"_" +
+							(url.length > 1 ? Number(url[1]) + 1 : 1);
+					}
 				}
-			}
 				next();
 			}
 		}
-	})
+	}
+	)
 	const seo = {
 		title: waw.config.name,
 		description: waw.config.description,
@@ -106,13 +128,13 @@ module.exports = async (waw) => {
 				req.params.tag_id
 					? { tag: req.params.tag_id }
 					: req.originalUrl === "/sales"
-					? {
+						? {
 							sale: {
 								$gt: 0,
 								$ne: null
 							}
-					  }
-					: {},
+						}
+						: {},
 				20
 			);
 
@@ -121,9 +143,9 @@ module.exports = async (waw) => {
 					path.join(template, "dist", "products.html"),
 					{
 						...waw.config,
-						title: waw.config.productTitle|| waw.config.title,
-                                                description: waw.config.productDescription || waw.config.description,
-                                                image: waw.config.productImage|| waw.config.image,
+						title: waw.config.productTitle || waw.config.title,
+						description: waw.config.productDescription || waw.config.description,
+						image: waw.config.productImage || waw.config.image,
 						products,
 						categories: await waw.tag_groups('product')
 					},
@@ -140,9 +162,9 @@ module.exports = async (waw) => {
 			waw.serve_product[req.get("host")](req, res);
 		} else {
 			const product = await waw.product(
-			waw.mongoose.Types.ObjectId.isValid(req.params._id)
-				? { _id: req.params._id }
-				: { url: req.params._id }
+				waw.mongoose.Types.ObjectId.isValid(req.params._id)
+					? { _id: req.params._id }
+					: { url: req.params._id }
 			);
 
 			if (!product) {
@@ -158,8 +180,8 @@ module.exports = async (waw) => {
 					products,
 					title: product.title + " | Wawify"
 				},
-				 waw.translate(req)
-					  )
+					waw.translate(req)
+				)
 			);
 		}
 	});
@@ -190,9 +212,9 @@ module.exports = async (waw) => {
 		}
 	});
 	await waw.wait(2000);
-   if (waw.store_landing) {
-    waw.store_landing.products = async (query)=>{
-         return await waw.products(query, 4);
-    }
-}
+	if (waw.store_landing) {
+		waw.store_landing.products = async (query) => {
+			return await waw.products(query, 4);
+		}
+	}
 };
