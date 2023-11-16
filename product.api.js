@@ -96,56 +96,37 @@ module.exports = async (waw) => {
 		}
 	}
 	)
-	const seo = {
-		title: waw.config.name,
-		description: waw.config.description,
-		image: 'https://body.webart.work/template/img/logo.png'
-	};
 
-
-	waw.products = async (query = {}, limit, count = false) => {
-		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query);
-
-		if (limit) {
-			exe = exe.limit(limit);
-		}
-
-		return await exe;
-	};
-
-	waw.product = async (query) => {
-		return await waw.Product.findOne(query);
-	};
-
-	const products = await waw.products(
-		req.params.tag_id
-			? { tag: req.params.tag_id }
-			: req.originalUrl === "/sales"
+	const products = async (req, res) => {
+		const products = await waw.products(
+			req.params.tag_id
+				? { tag: req.params.tag_id }
+				: req.originalUrl === "/sales"
 				? {
-					sale: {
-						$gt: 0,
-						$ne: null
-					}
-				}
+						sale: {
+							$gt: 0,
+							$ne: null
+						}
+				  }
 				: {},
-		20
-	);
+			20
+		);
 
-	res.send(
-		waw.render(
-			path.join(template, "dist", "products.html"),
-			{
-				...waw.config,
-				title: waw.config.productTitle || waw.config.title,
-				description: waw.config.productDescription || waw.config.description,
-				image: waw.config.productImage || waw.config.image,
-				products,
-				categories: await waw.tag_groups('product')
-			},
-			waw.translate(req)
-		)
-	);
-};
+		res.send(
+			waw.render(
+				path.join(template, "dist", "products.html"),
+				{
+					...waw.config,
+					title: waw.config.productTitle|| waw.config.title,
+											description: waw.config.productDescription || waw.config.description,
+											image: waw.config.productImage|| waw.config.image,
+					products,
+					categories: await waw.tag_groups('product')
+				},
+				waw.translate(req)
+			)
+		);
+			}
 
 waw.api({
 	domain: waw.config.land,
@@ -155,11 +136,7 @@ waw.api({
 		pages: "product products",
 	},
 	page: {
-		"/test/:any": (req, res) => {
-			res.json(req.urlParams);
-		},
 		"/products": products,
-		"/sales": products,
 		"/products/:tag_id": products,
 		"/product/:_id": async (req, res) => {
 			const product = await waw.product(
@@ -219,3 +196,4 @@ if (waw.store_landing) {
 		return await waw.products(query, 4);
 	}
 };
+}
