@@ -96,19 +96,32 @@ module.exports = async (waw) => {
 		}
 	}
 	)
+	waw.products = async (query = {}, limit, count = false) => {
+		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query);
+
+		if (limit) {
+			exe = exe.limit(limit);
+		}
+
+		return await exe;
+	};
+
+	waw.product = async (query) => {
+		return await waw.Product.findOne(query);
+	};
 
 	const products = async (req, res) => {
 		const products = await waw.products(
 			req.params.tag_id
 				? { tag: req.params.tag_id }
 				: req.originalUrl === "/sales"
-				? {
+					? {
 						sale: {
 							$gt: 0,
 							$ne: null
 						}
-				  }
-				: {},
+					}
+					: {},
 			20
 		);
 
@@ -117,83 +130,84 @@ module.exports = async (waw) => {
 				path.join(template, "dist", "products.html"),
 				{
 					...waw.config,
-					title: waw.config.productTitle|| waw.config.title,
-											description: waw.config.productDescription || waw.config.description,
-											image: waw.config.productImage|| waw.config.image,
+					title: waw.config.productTitle || waw.config.title,
+					description: waw.config.productDescription || waw.config.description,
+					image: waw.config.productImage || waw.config.image,
 					products,
 					categories: await waw.tag_groups('product')
 				},
 				waw.translate(req)
 			)
 		);
+	}
+
+	waw.api({
+		domain: waw.config.land,
+		template: {
+			path: template,
+			prefix: "/template",
+			pages: "product products",
+		},
+		page: {
+			"/products": products,
+			"/sales": products,
+			"/products/:tag_id": products,
+			"/product/:_id": async (req, res) => {
+				const product = await waw.product(
+					waw.mongoose.Types.ObjectId.isValid(req.params._id)
+						? { _id: req.params._id }
+						: { url: req.params._id }
+				);
+
+				if (!product) {
+					return res.redirect('/products');
+				}
+
+				const products = await waw.products({}, 6);
+
+				res.send(
+					waw.render(path.join(template, "dist", "product.html"), {
+						...waw.config,
+						product,
+						products,
+						title: product.title + " | Wawify"
+					},
+						waw.translate(req)
+					)
+				);
 			}
+		}
+	});
 
-waw.api({
-	domain: waw.config.land,
-	template: {
-		path: template,
-		prefix: "/template",
-		pages: "product products",
-	},
-	page: {
-		"/products": products,
-		"/products/:tag_id": products,
-		"/product/:_id": async (req, res) => {
-			const product = await waw.product(
-				waw.mongoose.Types.ObjectId.isValid(req.params._id)
-					? { _id: req.params._id }
-					: { url: req.params._id }
-			);
+	const save_file = (doc) => {
+		if (doc.thumb) {
+			waw.save_file(doc.thumb);
+		}
 
-			if (!product) {
-				return res.redirect('/products');
+		if (doc.thumbs) {
+			for (const thumb of doc.thumbs) {
+				waw.save_file(thumb);
 			}
-
-			const products = await waw.products({}, 6);
-
-			res.send(
-				waw.render(path.join(template, "dist", "product.html"), {
-					...waw.config,
-					product,
-					products,
-					title: product.title + " | Wawify"
-				},
-					waw.translate(req)
-				)
-			);
 		}
-	}
-});
+	};
 
-const save_file = (doc) => {
-	if (doc.thumb) {
-		waw.save_file(doc.thumb);
-	}
-
-	if (doc.thumbs) {
-		for (const thumb of doc.thumbs) {
-			waw.save_file(thumb);
+	waw.on("product_create", save_file);
+	waw.on("product_update", save_file);
+	waw.on("product_delete", (doc) => {
+		if (doc.thumb) {
+			waw.delete_file(doc.thumb);
 		}
-	}
-};
 
-waw.on("product_create", save_file);
-waw.on("product_update", save_file);
-waw.on("product_delete", (doc) => {
-	if (doc.thumb) {
-		waw.delete_file(doc.thumb);
-	}
-
-	if (doc.thumbs) {
-		for (const thumb of doc.thumbs) {
-			waw.delete_file(thumb);
+		if (doc.thumbs) {
+			for (const thumb of doc.thumbs) {
+				waw.delete_file(thumb);
+			}
 		}
-	}
-});
-await waw.wait(2000);
-if (waw.store_landing) {
-	waw.store_landing.products = async (query) => {
-		return await waw.products(query, 4);
-	}
-};
+	});
+	await waw.wait(2000);
+	if (waw.store_landing) {
+		waw.store_landing.products = async (query) => {
+			return await waw.products(query, 4);
+		}
+	};
 }
