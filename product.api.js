@@ -187,6 +187,15 @@ module.exports = async (waw) => {
 		fillJson.footer.products = fillJson.products;
 	}
 
+		waw.storeProduct = async (store, fillJson, req) => {
+		fillJson.product = await waw.product({
+			 author: store.author,
+			_id: req.params._id  
+		});
+
+		fillJson.footer.product = fillJson.product;
+	}
+
 	const save_file = (doc) => {
 		if (doc.thumb) {
 			waw.save_file(doc.thumb);
