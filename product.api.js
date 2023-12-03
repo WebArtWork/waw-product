@@ -179,6 +179,14 @@ module.exports = async (waw) => {
 		}
 	});
 
+	waw.storeProducts = async (store, fillJson) => {
+		fillJson.products = await waw.products({
+			author: store.author
+		});
+
+		fillJson.footer.products = fillJson.products;
+	}
+
 	const save_file = (doc) => {
 		if (doc.thumb) {
 			waw.save_file(doc.thumb);
