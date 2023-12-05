@@ -183,7 +183,24 @@ module.exports = async (waw) => {
 		fillJson.products = await waw.products({
 			author: store.author
 		});
-
+	
+		fillJson.productsByTag = [];
+		for (const product of fillJson.products) {
+			 if (!product.tag) continue;
+			const tagObj = fillJson.productsByTag.find(c => c.id === product.tag.toString());
+			if (tagObj) {
+				tagObj.products.push(product);
+			} else {
+				const tag = waw.getTag(product.tag);
+				fillJson.productsByTag.push({
+					id: product.tag,
+					name: tag.name,
+					short: tag.short,
+					tags: [product]
+				})
+			}
+		}
+	
 		fillJson.footer.products = fillJson.products;
 	}
 
