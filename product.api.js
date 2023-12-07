@@ -187,7 +187,7 @@ module.exports = async (waw) => {
 		fillJson.productsByTag = [];
 		for (const product of fillJson.products) {
 			 if (!product.tag) continue;
-			const tagObj = fillJson.productsByTag.find(c => c.id === product.tag.toString());
+			const tagObj = fillJson.productsByTag.find(c => c.id.toString() === product.tag.toString());
 			if (tagObj) {
 				tagObj.products.push(product);
 			} else {
@@ -196,7 +196,7 @@ module.exports = async (waw) => {
 					id: product.tag,
 					name: tag.name,
 					short: tag.short,
-					tags: [product]
+					products: [product]
 				})
 			}
 		}
