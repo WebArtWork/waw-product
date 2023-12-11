@@ -97,7 +97,7 @@ module.exports = async (waw) => {
 	}
 	)
 	waw.products = async (query = {}, limit, count = false) => {
-		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query);
+		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query).limit(10);;
 
 		if (limit) {
 			exe = exe.limit(limit);
