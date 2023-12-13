@@ -52,6 +52,12 @@ module.exports = async (waw) => {
 					return {};
 				}
 			},
+			{
+				ensure: waw.next,
+				query: req => {
+					return { domain: req.get('host') };
+				}
+			}
 		],
 		update: {
 			name: 'admin',
@@ -92,10 +98,21 @@ module.exports = async (waw) => {
 					}
 				}
 				next();
+			},
+			ensureDomain: async (req, res, next) => {
+				req.body.domain = req.get('host');
+				next();
 			}
 		}
+	})
+
+	const docs = await waw.Article.find({});
+	for (const doc of docs) {
+		doc.domain = waw.config.land;
+		await doc.save();
 	}
-	)
+
+
 	waw.products = async (query = {}, limit, count = false) => {
 		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query).limit(10);;
 
@@ -110,20 +127,16 @@ module.exports = async (waw) => {
 		return await waw.Product.findOne(query);
 	};
 
-	const products = async (req, res) => {
-		const products = await waw.products(
-			req.params.tag_id
-				? { tag: req.params.tag_id }
-				: req.originalUrl === "/sales"
-					? {
-						sale: {
-							$gt: 0,
-							$ne: null
-						}
-					}
-					: {},
-			20
-		);
+	waw.serveProducts = async (req, res) => {
+		const query = {};
+		if (req.params.tag_id) {
+			query.tag = req.params.tag_id;
+		}
+		if (req.get('host') !== waw.config.land) {
+			query.domain = req.get('host');
+		}
+
+		const products = await waw.Product.find(query).limit(10);
 
 		res.send(
 			waw.render(
@@ -152,7 +165,10 @@ module.exports = async (waw) => {
 			"/products": products,
 			"/sales": products,
 			"/products/:tag_id": products,
-			"/product/:_id": async (req, res) => {
+			"/product/:_id": waw.serveProduct
+		}
+	});
+			waw.serveProduct = async (req, res) => {
 				const product = await waw.product(
 					waw.mongoose.Types.ObjectId.isValid(req.params._id)
 						? { _id: req.params._id }
@@ -176,8 +192,6 @@ module.exports = async (waw) => {
 					)
 				);
 			}
-		}
-	});
 
 	waw.storeProducts = async (store, fillJson) => {
 		fillJson.products = await waw.products({
