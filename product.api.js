@@ -163,9 +163,9 @@ module.exports = async (waw) => {
 			pages: "product products",
 		},
 		page: {
-			"/products": products,
-			"/sales": products,
-			"/products/:tag_id": products,
+			"/products": waw.serveProducts,
+			"/sales": waw.serveProducts,
+			"/products/:tag_id": waw.serveProducts,
 			"/product/:_id": waw.serveProduct
 		}
 	});
