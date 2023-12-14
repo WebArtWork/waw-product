@@ -105,11 +105,12 @@ module.exports = async (waw) => {
 			}
 		}
 	})
-
-	const docs = await waw.Article.find({});
+	const docs = await waw.Product.find({});
 	for (const doc of docs) {
-		doc.domain = waw.config.land;
-		await doc.save();
+		if (!doc.domain) {
+			doc.domain = waw.config.land;
+			await doc.save();
+		}
 	}
 
 
