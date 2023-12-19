@@ -5,6 +5,7 @@ module.exports = function(waw) {
 		sale: Number,
 		name: String,
 		short: String,
+		domain: String,
 		description: String,
 		isTemplate: Boolean,
  		template: {
@@ -45,6 +46,8 @@ module.exports = function(waw) {
 		this.url = obj.url;
 
 		this.name = obj.name;
+
+		this.domain = obj.domain;
 
 		this.description = obj.description;
 
