@@ -169,96 +169,97 @@ module.exports = async (waw) => {
 			"/product/:_id": waw.serveProduct
 		}
 	});
-			waw.serveProduct = async (req, res) => {
-				const product = await waw.product(
-					waw.mongoose.Types.ObjectId.isValid(req.params._id)
-						? { _id: req.params._id }
-						: { url: req.params._id }
-				);
+	waw.serveProduct = async (req, res) => {
+		const product = await waw.product(
+			waw.mongoose.Types.ObjectId.isValid(req.params._id)
+				? { _id: req.params._id }
+				: { url: req.params._id }
+		);
 
-				if (!product) {
-					return res.redirect('/products');
+		if (!product) {
+			return res.redirect('/products');
+		}
+
+		const products = await waw.products({}, 6);
+
+		res.send(
+			waw.render(path.join(template, "dist", "product.html"), {
+				...waw.config,
+				product,
+				products,
+				title: product.title + " | Wawify"
+			},
+				waw.translate(req)
+			)
+		);
+	}
+
+	waw.operatorProducts = async (operator, fillJson) => {
+		fillJson.products = await waw.products({
+			domain: operator.domain
+		});
+
+		fillJson.productsByTag = [];
+		for (const product of fillJson.products) {
+			if (!product.tag) continue;
+			const tagObj = fillJson.productsByTag.find(c => c.id.toString() === product.tag.toString());
+			if (tagObj) {
+				tagObj.products.push(product);
+			} else {
+				const tag = waw.getTag(product.tag)
+				if (tag) {
+					fillJson.productsByTag.push({
+						id: product.tag,
+						category: tag.category,
+						name: tag.name,
+						description: tag.description,
+						products: [product]
+					})
 				}
-
-				const products = await waw.products({}, 6);
-
-				res.send(
-					waw.render(path.join(template, "dist", "product.html"), {
-						...waw.config,
-						product,
-						products,
-						title: product.title + " | Wawify"
-					},
-						waw.translate(req)
-					)
-				);
 			}
+		}
 
-			waw.operatorProducts = async (operator, fillJson) => {
-				fillJson.products = await waw.products({
-					domain: operator.domain
-				});
-		
-				fillJson.productsByTag = [];
-				for (const product of fillJson.products) {
-					if (!product.tag) continue;
-					const tagObj = fillJson.productsByTag.find(c => c.id.toString() === product.tag.toString());
-					if (tagObj) {
-						tagObj.products.push(product);
-					} else {
-						const tag = waw.getTag(product.tag);
-		
-						fillJson.productsByTag.push({
-							id: product.tag,
-							category: tag.category,
-							name: tag.name,
-							description: tag.description,
-							products: [product]
-						})
+		fillJson.productsByCategory = [];
+		for (const byTag of fillJson.productsByTag) {
+			const categoryObj = fillJson.productsByCategory.find(c => c.id.toString() === byTag.category.toString());
+			if (categoryObj) {
+				categoryObj.tags.push(byTag);
+
+				for (const product of byTag.products) {
+					if (!categoryObj.products.find(s => s.id === product.id)) {
+						categoryObj.products.push(product)
 					}
 				}
-		
-				fillJson.productsByCategory = [];
-				for (const byTag of fillJson.productsByTag) {
-					const categoryObj = fillJson.productsByCategory.find(c => c.id.toString() === byTag.category.toString());
-					if (categoryObj) {
-						categoryObj.tags.push(byTag);
-		
-						for (const product of byTag.products) {
-							if (!categoryObj.products.find(s => s.id === product.id)) {
-								categoryObj.products.push(product)
-							}
-						}
-					} else {
-						const category = waw.getCategory(byTag.category);
-		
-						fillJson.productsByCategory.push({
-							id: byTag.category,
-							name: category.name,
-							description: category.description,
-							products: byTag.products.slice(),
-							tags: [byTag]
-						})
-					}
-				}
+			} else {
+				const category = waw.getCategory(byTag.category);
+
+				fillJson.productsByCategory.push({
+					id: byTag.category,
+					name: category.name,
+					description: category.description,
+					products: byTag.products.slice(),
+					tags: [byTag]
+				})
 			}
-		
-			waw.operatorProduct = async (operator, fillJson, req) => {
-				fillJson.product = await waw.product({
-					domain: operator.domain,
-					_id: req.params._id
-				});
-		
-				fillJson.footer.product = fillJson.product;
-			}
-		
-			waw.operatorTopProducts = async (operator, fillJson) => {
-				fillJson.topproducts = await waw.products({
-					domain: operator.domain
-				}, 4);
-		
-				fillJson.footer.topProducts = fillJson.topProducts;
-			}
+		}
+	}
+
+	waw.operatorProduct = async (operator, fillJson, req) => {
+		fillJson.product = await waw.product({
+			domain: operator.domain,
+			_id: req.params._id
+		});
+
+		fillJson.footer.product = fillJson.product;
+	}
+
+	waw.operatorTopProducts = async (operator, fillJson) => {
+		fillJson.topproducts = await waw.products({
+			domain: operator.domain
+		}, 4);
+
+		fillJson.footer.topProducts = fillJson.topProducts;
+	}
 
 	waw.storeProducts = async (store, fillJson) => {
 		fillJson.products = await waw.products({
@@ -308,12 +309,12 @@ module.exports = async (waw) => {
 			}
 		}
 	}
-	
 
-		waw.storeProduct = async (store, fillJson, req) => {
+
+	waw.storeProduct = async (store, fillJson, req) => {
 		fillJson.product = await waw.product({
-			 author: store.author,
-			_id: req.params._id  
+			author: store.author,
+			_id: req.params._id
 		});
 
 		fillJson.footer.product = fillJson.product;
@@ -321,7 +322,7 @@ module.exports = async (waw) => {
 
 	waw.storeTopProducts = async (store, fillJson) => {
 		fillJson.topProducts = await waw.products({
-			 author: store.author,
+			author: store.author,
 		}, 4);
 
 		fillJson.footer.topProducts = fillJson.topProducts;
