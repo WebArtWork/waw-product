@@ -206,7 +206,8 @@ module.exports = async (waw) => {
 			if (tagObj) {
 				tagObj.products.push(product);
 			} else {
-				const tag = waw.getTag(product.tag);
+				const tag = waw.getTag(product.tag)
+				if (tag) {
 					fillJson.productsByTag.push({
 						id: product.tag,
 						category: tag.category,
@@ -214,6 +215,7 @@ module.exports = async (waw) => {
 						description: tag.description,
 						products: [product]
 					})
+				}
 			}
 		}
 
@@ -252,7 +254,7 @@ module.exports = async (waw) => {
 	}
 
 	waw.operatorTopProducts = async (operator, fillJson) => {
-		fillJson.topproducts = await waw.products({
+		fillJson.topProducts = await waw.products({
 			domain: operator.domain
 		}, 4);
 
