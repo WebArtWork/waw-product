@@ -194,6 +194,72 @@ module.exports = async (waw) => {
 				);
 			}
 
+			waw.operatorProducts = async (operator, fillJson) => {
+				fillJson.products = await waw.products({
+					domain: operator.domain
+				});
+		
+				fillJson.productsByTag = [];
+				for (const product of fillJson.products) {
+					if (!product.tag) continue;
+					const tagObj = fillJson.productsByTag.find(c => c.id.toString() === product.tag.toString());
+					if (tagObj) {
+						tagObj.products.push(product);
+					} else {
+						const tag = waw.getTag(product.tag);
+		
+						fillJson.productsByTag.push({
+							id: product.tag,
+							category: tag.category,
+							name: tag.name,
+							description: tag.description,
+							products: [product]
+						})
+					}
+				}
+		
+				fillJson.productsByCategory = [];
+				for (const byTag of fillJson.productsByTag) {
+					const categoryObj = fillJson.productsByCategory.find(c => c.id.toString() === byTag.category.toString());
+					if (categoryObj) {
+						categoryObj.tags.push(byTag);
+		
+						for (const product of byTag.products) {
+							if (!categoryObj.products.find(s => s.id === product.id)) {
+								categoryObj.products.push(product)
+							}
+						}
+					} else {
+						const category = waw.getCategory(byTag.category);
+		
+						fillJson.productsByCategory.push({
+							id: byTag.category,
+							name: category.name,
+							description: category.description,
+							products: byTag.products.slice(),
+							tags: [byTag]
+						})
+					}
+				}
+			}
+		
+			waw.operatorProduct = async (operator, fillJson, req) => {
+				fillJson.product = await waw.product({
+					domain: operator.domain,
+					_id: req.params._id
+				});
+		
+				fillJson.footer.product = fillJson.product;
+			}
+		
+			waw.operatorTopProducts = async (operator, fillJson) => {
+				fillJson.topproducts = await waw.products({
+					domain: operator.domain
+				}, 4);
+		
+				fillJson.footer.topProducts = fillJson.topProducts;
+			}
+
 	waw.storeProducts = async (store, fillJson) => {
 		fillJson.products = await waw.products({
 			author: store.author
