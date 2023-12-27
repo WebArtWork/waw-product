@@ -249,16 +249,12 @@ module.exports = async (waw) => {
 			domain: operator.domain,
 			_id: req.params._id
 		});
-
-		fillJson.footer.product = fillJson.product;
 	}
 
 	waw.operatorTopProducts = async (operator, fillJson) => {
 		fillJson.topProducts = await waw.products({
 			domain: operator.domain
 		}, 4);
-
-		fillJson.footer.topProducts = fillJson.topProducts;
 	}
 
 	waw.storeProducts = async (store, fillJson) => {
