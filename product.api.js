@@ -1,5 +1,4 @@
 const path = require("path");
-const template = path.join(process.cwd(), "template");
 
 module.exports = async (waw) => {
 	waw.crud("product", {
@@ -106,15 +105,7 @@ module.exports = async (waw) => {
 				next();
 			}
 		}
-	})
-	const docs = await waw.Product.find({});
-	for (const doc of docs) {
-		if (!doc.domain) {
-			doc.domain = waw.config.land;
-			await doc.save();
-		}
-	}
-
+	});
 
 	waw.products = async (query = {}, limit, count = false) => {
 		let exe = count ? waw.Product.countDocuments(query) : waw.Product.find(query).limit(10);;
@@ -157,20 +148,6 @@ module.exports = async (waw) => {
 		);
 	}
 
-	waw.api({
-		domain: waw.config.land,
-		template: {
-			path: template,
-			prefix: "/template",
-			pages: "product products",
-		},
-		page: {
-			"/products": waw.serveProducts,
-			"/sales": waw.serveProducts,
-			"/products/:tag_id": waw.serveProducts,
-			"/product/:_id": waw.serveProduct
-		}
-	});
 	waw.serveProduct = async (req, res) => {
 		const product = await waw.product(
 			waw.mongoose.Types.ObjectId.isValid(req.params._id)
@@ -308,7 +285,6 @@ module.exports = async (waw) => {
 		}
 	}
 
-
 	waw.storeProduct = async (store, fillJson, req) => {
 		fillJson.product = await waw.product({
 			author: store.author,
@@ -351,10 +327,4 @@ module.exports = async (waw) => {
 			}
 		}
 	});
-	await waw.wait(2000);
-	if (waw.store_landing) {
-		waw.store_landing.products = async (query) => {
-			return await waw.products(query, 4);
-		}
-	};
 }
