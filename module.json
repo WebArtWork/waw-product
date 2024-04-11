@@ -8,11 +8,14 @@
 			"keys": [
 				"thumb",
 				"thumbs",
+				"top",
+				"enabled",
 				"name",
 				"description",
 				"price",
 				"short",
 				"tag",
+				"tags",
 				"sale",
 				"data"
 			]
