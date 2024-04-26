@@ -99,7 +99,6 @@ module.exports = async (waw) => {
 			},
 		},
 	});
-
 	waw.products = async (query = {}, limit, count = false) => {
 		let exe = count
 			? waw.Product.countDocuments(query)
@@ -111,12 +110,154 @@ module.exports = async (waw) => {
 
 		return await exe;
 	};
-
 	waw.product = async (query) => {
 		return await waw.Product.findOne(query);
 	};
 
 	const reloads = {};
+	waw.addJson(
+		"storePrepareProducts",
+		async (store, fillJson, req) => {
+			reloads[store._id] = reloads[store._id] || [];
+			const fillAllProducts = async () => {
+				fillJson.allProducts = await waw.Product.find({
+					tags: {
+						$in: fillJson.tagsIds,
+					},
+				}).lean();
+				for (const product of fillJson.allProducts) {
+					product.id = product._id.toString();
+					product._id = product._id.toString();
+					product.tags = (product.tags||[]).map(t => t.toString());
+				}
+				fillJson.top_products = fillJson.allProducts.filter((p) => {
+					return p.top;
+				});
+			};
+			fillAllProducts();
+			reloads[store._id].push(fillAllProducts);
+		},
+		"Prepare updatable documents of products"
+	);
+	const tagsUpdate = async (tag) => {
+		setTimeout(() => {
+			for (const storeId of (tag.stores || [])) {
+				for (const reload of (reloads[storeId] || [])) {
+					reload();
+				}
+			}
+		}, 2000);
+	};
+	waw.on("tag_create", tagsUpdate);
+	waw.on("tag_update", tagsUpdate);
+	waw.on("tag_delete", tagsUpdate);
+	const productsUpdate = async (product) => {
+		const tags = await waw.Tag.find({
+			_id: product.tags,
+		});
+		for (const tag of tags) {
+			tagsUpdate(tag);
+		}
+	};
+	waw.on("product_create", productsUpdate);
+	waw.on("product_update", productsUpdate);
+	waw.on("product_delete", productsUpdate);
+
+		const fillTags = (tags, id, fillJson) => {
+			for (const tag of tags) {
+				if (tag._id === id) {
+					tag.active = true;
+					fillJson.products = fillJson.allProducts.filter((p) => {
+						for (tagId of p.tags) {
+							if (tag._id === tagId) {
+								return true;
+							}
+							if (tag.children.includes(tagId)) {
+								return true;
+							}
+						}
+						return false;
+					});
+					tag.tags = fillJson.allTags.filter((t) => {
+						return tag._id === t.parent;
+					});
+				} else if (tag.children.includes(id)) {
+					tag.active = true;
+					tag.tags = fillJson.allTags.filter((t) => {
+						return tag._id === t.parent;
+					});
+					fillTags(tag.tags, id, fillJson);
+				}
+			}
+		};
+		waw.addJson(
+			"storeProductsTags",
+			async (store, fillJson, req) => {
+				for (const tag of fillJson.allTags) {
+					tag.tags = [];
+					tag.active = false;
+				}
+				if (req.params.tag_id) {
+					fillTags(fillJson.tags, req.params.tag_id, fillJson);
+				} else {
+					fillJson.products = fillJson.allProducts.slice();
+				}
+				console.log(fillJson.products);
+				// add search
+			},
+			"Add tags and products to json"
+		);
+		waw.addJson(
+			"storeProductTags",
+			async (store, fillJson, req) => {
+				if (!req.params.tag_id) {
+					for (const tag of fillJson.tags) {
+						tag.tags = [];
+						tag.active = false;
+					}
+				}
+				fillJson.product = waw.allProducts.filter((p) => {
+					return p.id === req.params.product_id;
+				});
+			},
+			"Add tags and product to json"
+		);
+		waw.addJson(
+			"storeFavoritedProducts",
+			async (store, fillJson, req) => {
+				fillJson.products = fillJson.allProducts.filter((p) => {
+					return fillJson.productFavorited(p.id);
+				});
+			},
+			"Add favorited product to json"
+		);
+
+	const save_file = (doc) => {
+		if (doc.thumb) {
+			waw.save_file(doc.thumb);
+		}
+
+		if (doc.thumbs) {
+			for (const thumb of doc.thumbs) {
+				waw.save_file(thumb);
+			}
+		}
+	};
+	waw.on("product_create", save_file);
+	waw.on("product_update", save_file);
+	waw.on("product_delete", (doc) => {
+		if (doc.thumb) {
+			waw.delete_file(doc.thumb);
+		}
+
+		if (doc.thumbs) {
+			for (const thumb of doc.thumbs) {
+				waw.delete_file(thumb);
+			}
+		}
+	});
+
+	// remove below
 	waw.addJson(
 		"storePrepareProductsTags",
 		async (store, fillJson, req) => {
@@ -158,33 +299,6 @@ module.exports = async (waw) => {
 		},
 		"Prepare updatable content of tags and products"
 	);
-	const fillTags = (tags, id, fillJson) => {
-		for (const tag of tags) {
-			if (tag._id === id) {
-				tag.active = true;
-				fillJson.products = fillJson.allProducts.filter((p) => {
-					for (tagId of p.tags) {
-						if (tag._id === tagId) {
-							return true;
-						}
-						if (tag.children.includes(tagId)) {
-							return true;
-						}
-					}
-					return false;
-				});
-				tag.tags = fillJson.allTags.filter((t) => {
-					return tag._id === t.parent;
-				});
-			} else if (tag.children.includes(id)) {
-				tag.active = true;
-				tag.tags = fillJson.allTags.filter((t) => {
-					return tag._id === t.parent;
-				});
-				fillTags(tag.tags, id, fillJson);
-			}
-		}
-	};
 	waw.addJson(
 		"storeTopProducts",
 		async (store, fillJson, req) => {
@@ -198,97 +312,6 @@ module.exports = async (waw) => {
 		},
 		"Add top products to json"
 	);
-	waw.addJson(
-		"storeProductsTags",
-		async (store, fillJson, req) => {
-			for (const tag of fillJson.allTags) {
-				tag.tags = [];
-				tag.active = false;
-			}
-			if (req.params.tag_id) {
-				fillTags(fillJson.tags, req.params.tag_id, fillJson);
-			} else {
-				fillJson.products = fillJson.allProducts.slice();
-			}
-			console.log(fillJson.products);
-			// add search
-		},
-		"Add tags and products to json"
-	);
-	waw.addJson(
-		"storeProductTags",
-		async (store, fillJson, req) => {
-			if (!req.params.tag_id) {
-				for (const tag of fillJson.tags) {
-					tag.tags = [];
-					tag.active = false;
-				}
-			}
-			fillJson.product = waw.allProducts.filter((p) => {
-				return p.id === req.params.product_id;
-			});
-		},
-		"Add tags and product to json"
-	);
-	waw.addJson(
-		"storeFavoritedProducts",
-		async (store, fillJson, req) => {
-			fillJson.products = fillJson.allProducts.filter((p) => {
-				return fillJson.productFavorited(p.id);
-			});
-		},
-		"Add favorited product to json"
-	);
-
-	const tagsUpdate = async (tag) => {
-		for (const storeId of tag.stores) {
-			for (const reload of reloads[storeId]) {
-				reload();
-			}
-		}
-	};
-	waw.on("tag_create", tagsUpdate);
-	waw.on("tag_update", tagsUpdate);
-	waw.on("tag_delete", tagsUpdate);
-	const productsUpdate = async (product) => {
-		const tags = await waw.Tag.find({
-			_id: product.tags,
-		});
-		for (const tag of tags) {
-			tagsUpdate(tag);
-		}
-	};
-	waw.on("product_create", productsUpdate);
-	waw.on("product_update", productsUpdate);
-	waw.on("product_delete", productsUpdate);
-
-	const save_file = (doc) => {
-		if (doc.thumb) {
-			waw.save_file(doc.thumb);
-		}
-
-		if (doc.thumbs) {
-			for (const thumb of doc.thumbs) {
-				waw.save_file(thumb);
-			}
-		}
-	};
-	waw.on("product_create", save_file);
-	waw.on("product_update", save_file);
-	waw.on("product_delete", (doc) => {
-		if (doc.thumb) {
-			waw.delete_file(doc.thumb);
-		}
-
-		if (doc.thumbs) {
-			for (const thumb of doc.thumbs) {
-				waw.delete_file(thumb);
-			}
-		}
-	});
-
-	// remove below
-
 	waw.serveProducts = async (req, res) => {
 		const query = {};
 		if (req.params.tag_id) {
@@ -316,7 +339,6 @@ module.exports = async (waw) => {
 			)
 		);
 	};
-
 	waw.serveProduct = async (req, res) => {
 		const product = await waw.product(
 			waw.mongoose.Types.ObjectId.isValid(req.params._id)
@@ -343,7 +365,6 @@ module.exports = async (waw) => {
 			)
 		);
 	};
-
 	waw.operatorProducts = async (operator, fillJson) => {
 		fillJson.products = await waw.products({
 			domain: operator.domain,
@@ -399,14 +420,12 @@ module.exports = async (waw) => {
 			}
 		}
 	};
-
 	waw.operatorProduct = async (operator, fillJson, req) => {
 		fillJson.product = await waw.product({
 			domain: operator.domain,
 			_id: req.params._id,
 		});
 	};
-
 	waw.operatorTopProducts = async (operator, fillJson) => {
 		fillJson.topProducts = await waw.products(
 			{
