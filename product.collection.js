@@ -1,12 +1,12 @@
-module.exports = function(waw) {
+module.exports = function (waw) {
 	const Schema = waw.mongoose.Schema({
 		top: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		enabled: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		thumb: String,
 		thumbs: [String],
@@ -16,7 +16,7 @@ module.exports = function(waw) {
 		domain: String,
 		description: String,
 		isTemplate: Boolean,
- 		template: {
+		template: {
 			type: waw.mongoose.Schema.Types.ObjectId,
 			ref: "Product",
 		},
@@ -25,23 +25,25 @@ module.exports = function(waw) {
 		data: {},
 		tag: {
 			type: waw.mongoose.Schema.Types.ObjectId,
-			ref: 'Tag'
+			ref: "Tag",
 		},
-		tags: [{
-			type: waw.mongoose.Schema.Types.ObjectId,
-			ref: 'Tag'
-		}],
+		tags: [
+			{
+				type: waw.mongoose.Schema.Types.ObjectId,
+				ref: "Tag",
+			},
+		],
 		author: {
 			type: waw.mongoose.Schema.Types.ObjectId,
-			ref: 'User'
+			ref: "User",
 		},
 		moderators: [
 			{
 				type: waw.mongoose.Schema.Types.ObjectId,
 				sparse: true,
-				ref: 'User'
-			}
-		]
+				ref: "User",
+			},
+		],
 	});
 
 	Schema.methods.create = function (obj, user, waw) {
@@ -53,7 +55,9 @@ module.exports = function(waw) {
 		this.tags = obj.tags;
 		this.thumb = obj.thumb;
 		this.thumbs = obj.thumbs;
-		this.url = obj.url;
+		if (obj.url) {
+			this.url = obj.url;
+		}
 		this.name = obj.name;
 		this.domain = obj.domain;
 		this.description = obj.description;
@@ -62,7 +66,7 @@ module.exports = function(waw) {
 		this.data = obj.data;
 		this.isTemplate = obj.isTemplate;
 		this.template = obj.template;
-	}
+	};
 
-	return waw.Product = waw.mongoose.model('Product', Schema);
-}
+	return (waw.Product = waw.mongoose.model("Product", Schema));
+};
