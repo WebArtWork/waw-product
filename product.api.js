@@ -1,8 +1,35 @@
 const path = require("path");
 
 module.exports = async (waw) => {
+	const ensure = waw.role("admin owner", async (req, res, next) => {
+		if (!req.user.is.admin) {
+			req.storeIds = (
+				await waw.Store.find({
+					moderators: req.user._id,
+				}).select("_id")
+			).map((s) => s.id);
+			req.tagsIds = (
+				await waw.Tag.find({
+					stores: req.storeIds,
+				}).select("_id")
+			).map((s) => s.id);
+		}
+		next();
+	});
 	waw.crud("product", {
 		get: [
+			{
+				ensure,
+				query: (req) => {
+					return req.user.is.admin
+						? {}
+						: {
+								tags: {
+									$in: req.tagsIds,
+								},
+						  };
+				},
+			},
 			{
 				name: "public",
 				ensure: waw.next,
@@ -52,17 +79,33 @@ module.exports = async (waw) => {
 			},
 		],
 		update: {
-			name: "admin",
-			ensure: waw.role("admin"),
+			ensure,
 			query: (req) => {
-				return { _id: req.body._id };
+				return req.user.is.admin
+					? {
+							_id: req.body._id,
+					  }
+					: {
+							_id: req.body._id,
+							tags: {
+								$in: req.tagsIds,
+							},
+					  };
 			},
 		},
 		delete: {
-			name: "admin",
-			ensure: waw.role("admin"),
+			ensure,
 			query: (req) => {
-				return { _id: req.body._id };
+				return req.user.is.admin
+					? {
+						_id: req.body._id,
+					}
+					: {
+						_id: req.body._id,
+						tags: {
+							$in: req.tagsIds,
+						},
+					};
 			},
 		},
 		fetch: {
@@ -128,12 +171,14 @@ module.exports = async (waw) => {
 					tags: {
 						$in: fillJson.tagsIds,
 					},
-					enabled: true
+					enabled: true,
 				}).lean();
 				for (const product of fillJson.allProducts) {
 					product.id = product._id.toString();
 					product._id = product._id.toString();
-					product.tags = (product.tags||[]).map(t => t.toString());
+					product.tags = (product.tags || []).map((t) =>
+						t.toString()
+					);
 				}
 				fillJson.top_products = fillJson.allProducts.filter((p) => {
 					return p.top;
@@ -146,8 +191,8 @@ module.exports = async (waw) => {
 	);
 	const tagsUpdate = async (tag) => {
 		setTimeout(() => {
-			for (const storeId of (tag.stores || [])) {
-				for (const reload of (reloads[storeId] || [])) {
+			for (const storeId of tag.stores || []) {
+				for (const reload of reloads[storeId] || []) {
 					reload();
 				}
 			}
@@ -208,7 +253,7 @@ module.exports = async (waw) => {
 			}
 		}
 		return false;
-	}
+	};
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
@@ -219,6 +264,19 @@ module.exports = async (waw) => {
 			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson);
 			} else {
+				fillJson.allProducts = await waw.Product.find({
+					tags: {
+						$in: fillJson.tagsIds,
+					},
+					enabled: true,
+				}).lean();
+				for (const product of fillJson.allProducts) {
+					product.id = product._id.toString();
+					product._id = product._id.toString();
+					product.tags = (product.tags || []).map((t) =>
+						t.toString()
+					);
+				}
 				fillJson.products = fillJson.allProducts.slice();
 			}
 			const tag = getTag(fillJson.tags);
