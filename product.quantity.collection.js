@@ -11,10 +11,9 @@ module.exports = async function (waw) {
 		}
 	});
 	
-	Schema.methods.create = function (obj, user) {
+	Schema.methods.create = function (obj) {
 		this.sizes = obj.sizes;
 		this.quantity = obj.quantity;
-
 	};
 
 	return (waw.ProductQuantity = waw.mongoose.model("ProductQuantity", Schema));
