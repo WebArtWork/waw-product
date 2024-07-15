@@ -65,14 +65,10 @@ module.exports = async (waw) => {
 		async (store, fillJson, req) => {
 			const products = await waw.Product.find(
 				req.user
-					? {
-							user: req.user._id,
-					  }
-					: {
-							sessionID: req.sessionID,
-					  }
+					? { user: req.user._id }
+					: { sessionID: req.sessionID }
 			).select("sizes");
-			fillJson.productSizes = products.map((product) => product.sizes);
+			fillJson.productSizes = products.map(product => product.sizes);
 		},
 		"Get product sizes and quantities"
 	);
