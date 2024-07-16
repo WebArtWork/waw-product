@@ -179,6 +179,9 @@ module.exports = async (waw) => {
 					product.tags = (product.tags || []).map((t) =>
 						t.toString()
 					);
+					product.size = await waw.Productquantity.find({
+						product: product._id
+					}).populate('size').lean();
 				}
 				fillJson.top_products = fillJson.allProducts.filter((p) => {
 					return p.top;
