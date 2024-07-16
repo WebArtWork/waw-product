@@ -15,12 +15,6 @@ module.exports = function (waw) {
 		short: String,
 		domain: String,
 		description: String,
-		size: [
-			{
-				name: String,
-				quantity: Number
-			}
-		],
 		isTemplate: Boolean,
 		template: {
 			type: waw.mongoose.Schema.Types.ObjectId,
@@ -58,7 +52,6 @@ module.exports = function (waw) {
 		this.top = obj.top;
 		this.enabled = obj.enabled;
 		this.tag = obj.tag;
-		this.size = obj.size;
 		this.tags = obj.tags;
 		this.thumb = obj.thumb;
 		this.thumbs = obj.thumbs;
