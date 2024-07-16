@@ -1,20 +1,26 @@
 module.exports = async function (waw) {
 	const Schema = new waw.mongoose.Schema({
-		sizes: {
+		size: {
 			type: waw.mongoose.Schema.Types.ObjectId,
-			ref: "ProductSize",
+			ref: "Productsize",
 			required: true,
 		},
 		quantity: {
 			type: Number,
+			required: true
+		},
+		product: {
+			type: waw.mongoose.Schema.Types.ObjectId,
+			ref: "Product",
 			required: true,
-		}
+		},
 	});
 	
 	Schema.methods.create = function (obj) {
-		this.sizes = obj.sizes;
+		this.size = obj.size;
 		this.quantity = obj.quantity;
+		this.product = obj.product;
 	};
 
-	return (waw.ProductQuantity = waw.mongoose.model("ProductQuantity", Schema));
+	return (waw.Productquantity = waw.mongoose.model("Productquantity", Schema));
 };
