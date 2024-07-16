@@ -1,27 +1,44 @@
 {
 	"repo": "git@github.com:WebArtWork/waw-product.git",
 	"name": "Product",
-	"crud": {
-		"get": ["", "public", "crafts", "links"],
-		"unique": ["url"],
-		"update": {
-			"keys": [
-				"thumb",
-				"thumbs",
-				"top",
-				"enabled",
-				"name",
-				"description",
-				"price",
-				"size",
-				"short",
-				"tag",
-				"tags",
-				"sale",
-				"data"
-			]
+	"crud": [
+		{
+			"name": "product",
+			"get": ["", "public", "crafts", "links"],
+			"unique": ["url"],
+			"update": {
+				"keys": [
+					"thumb",
+					"thumbs",
+					"top",
+					"enabled",
+					"name",
+					"description",
+					"price",
+					"sizes",
+					"short",
+					"tag",
+					"tags",
+					"sale",
+					"data"
+				]
+			},
+			"delete": [""]
 		},
-		"delete": [""]
-	},
+		{
+			"name": "productsize",
+			"update": {
+				"keys": ["name"]
+			},
+			"delete": [""]
+		},
+		{
+			"name": "productquantity",
+			"update": {
+				"keys": ["size", "quantity"]
+			},
+			"delete": [""]
+		}
+	],
 	"dependencies": {}
 }
