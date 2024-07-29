@@ -13,6 +13,8 @@ module.exports = function (waw) {
 		sale: Number,
 		name: String,
 		short: String,
+		gender: String,
+		season: String,
 		domain: String,
 		description: String,
 		isTemplate: Boolean,
@@ -53,6 +55,8 @@ module.exports = function (waw) {
 		this.enabled = obj.enabled;
 		this.tag = obj.tag;
 		this.tags = obj.tags;
+		this.gender = obj.gender;
+		this.season = obj.season;
 		this.thumb = obj.thumb;
 		this.thumbs = obj.thumbs;
 		if (obj.url) {
