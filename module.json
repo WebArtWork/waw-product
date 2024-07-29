@@ -13,6 +13,8 @@
 					"top",
 					"enabled",
 					"name",
+					"gender",
+					"season",
 					"description",
 					"price",
 					"sizes",
