@@ -229,6 +229,9 @@ module.exports = async (waw) => {
 							return true;
 						}
 					}
+					return false;
+				});
+				fillJson.products = fillJson.allProducts.filter((p) => {
 					if (query) {
 						if (query.gender) {
 							console.log(p.gender);
