@@ -261,6 +261,7 @@ module.exports = async (waw) => {
 		"storeProducts",
 		async (store, fillJson, req) => {
 			console.log(req.url);
+			console.log(req.params);
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
 				tag.active = false;
