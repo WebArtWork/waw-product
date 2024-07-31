@@ -180,7 +180,7 @@ module.exports = async (waw) => {
 						t.toString()
 					);
 					product.size = await waw.Productquantity.find({
-						product: product._id
+						product: product._id,
 					}).populate('size').lean();
 				}
 				fillJson.top_products = fillJson.allProducts.filter((p) => {
@@ -257,13 +257,36 @@ module.exports = async (waw) => {
 		}
 		return false;
 	};
+	const queryStringToObject = (queryString) => {
+		let result = {};
+		let pairs = queryString.split('&');
+
+		pairs.forEach(pair => {
+		  let [key, value] = pair.split('=');
+		  
+		  key = decodeURIComponent(key);
+		  value = decodeURIComponent(value);
+		  
+		  let values = value.split(',');
+		  
+		  if (!result[key]) {
+			result[key] = {};
+		  }
+		  
+		  values.forEach(val => {
+			result[key][val] = true;
+		  });
+		});
+		
+		return result;
+	}
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
-			console.log(req.params);
 			const params = decodeURIComponent(req.params.tag_id.split("?").pop());
 			req.params.tag_id = req.params.tag_id.split('?')[0];
-			console.log(params);
+			const paramsObject = queryStringToObject(params);
+			console.log(paramsObject);
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
 				tag.active = false;
