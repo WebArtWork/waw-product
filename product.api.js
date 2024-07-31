@@ -241,7 +241,11 @@ module.exports = async (waw) => {
 					  }
 					  console.log(query.season);
 					  if (query.season) {
-						seasonMatch = Object.keys(query.season).includes(product.season);
+						let season = {};
+						for (const key in query.season) {
+							season[key.replace(/\+/g, ' ')] = query.season[key];
+						}
+						seasonMatch = Object.keys(season).includes(product.season);
 					  }
 					}
 				
