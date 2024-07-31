@@ -231,7 +231,8 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				fillJson.products = fillJson.allProducts.filter(product => {
+				fillJson.seasons = getUniqueSeasons(fillJson.products);
+				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
 				
@@ -239,7 +240,6 @@ module.exports = async (waw) => {
 					  if (query.gender) {
 						genderMatch = Object.keys(query.gender).includes(product.gender);
 					  }
-					  console.log(query.season);
 					  if (query.season) {
 						let season = {};
 						for (const key in query.season) {
@@ -277,6 +277,17 @@ module.exports = async (waw) => {
 		}
 		return false;
 	};
+	const getUniqueSeasons(products) {
+		const seasonsSet = new Set();
+	  
+		products.forEach(product => {
+		  if (product.season) {
+			seasonsSet.add(product.season);
+		  }
+		});
+	  
+		return Array.from(seasonsSet);
+	  }
 	const queryStringToObject = (queryString) => {
 		let result = {};
 		let pairs = queryString.split('&');
@@ -310,7 +321,6 @@ module.exports = async (waw) => {
 				tag.tags = [];
 				tag.active = false;
 			}
-			fillJson.seasons = await waw.Product.distinct('season');
 			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
