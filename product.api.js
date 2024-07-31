@@ -234,7 +234,6 @@ module.exports = async (waw) => {
 				fillJson.products = fillJson.allProducts.filter((p) => {
 					if (query) {
 						if (query.gender) {
-							console.log(p.gender);
 							for (const key in query.gender) {
 								if (key == p.gender) return true;
 							}
