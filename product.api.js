@@ -310,7 +310,7 @@ module.exports = async (waw) => {
 				tag.tags = [];
 				tag.active = false;
 			}
-			fillJson.seasons = await Product.distinct('season');
+			fillJson.seasons = await waw.Product.distinct('season');
 			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
