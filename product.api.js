@@ -277,7 +277,7 @@ module.exports = async (waw) => {
 		}
 		return false;
 	};
-	const getUniqueSeasons(products) {
+	const getUniqueSeasons = (products) => {
 		const seasonsSet = new Set();
 	  
 		products.forEach(product => {
