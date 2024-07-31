@@ -230,8 +230,8 @@ module.exports = async (waw) => {
 						}
 					}
 					if (query) {
-						console.log(query.gender);
 						if (query.gender) {
+							console.log(p.gender);
 							for (const key in query.gender) {
 								if (key == p.gender) return true;
 							}
