@@ -260,6 +260,7 @@ module.exports = async (waw) => {
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
+			console.log(req.url);
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
 				tag.active = false;
