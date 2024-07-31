@@ -260,9 +260,9 @@ module.exports = async (waw) => {
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
+			console.log(req.url);
 			console.log(req.url.split("?").pop());
 			const params = decodeURIComponent(req.url.split("?").pop());
-			console.log(req.url);
 			console.log(params);
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
