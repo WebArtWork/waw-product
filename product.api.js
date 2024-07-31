@@ -233,9 +233,19 @@ module.exports = async (waw) => {
 				});
 				fillJson.products = fillJson.allProducts.filter((p) => {
 					if (query) {
-						if (query.gender) {
+						if (query.gender) { 
 							for (const key in query.gender) {
 								if (key == p.gender) return true;
+							}
+						}
+					}
+					return false;
+				});
+				fillJson.products = fillJson.allProducts.filter((p) => {
+					if (query) {
+						if (query.season) { 
+							for (const key in query.season) {
+								if (key == p.season) return true;
 							}
 						}
 					}
@@ -300,6 +310,7 @@ module.exports = async (waw) => {
 				tag.tags = [];
 				tag.active = false;
 			}
+			fillJson.seasons = await Product.distinct('season');
 			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
