@@ -244,7 +244,7 @@ module.exports = async (waw) => {
 				tag.tags = fillJson.allTags.filter((t) => {
 					return tag._id === t.parent;
 				});
-				fillTags(tag.tags, id, fillJson);
+				fillTags(tag.tags, id, fillJson, query);
 			}
 		}
 	};
