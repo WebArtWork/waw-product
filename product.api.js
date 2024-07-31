@@ -229,9 +229,11 @@ module.exports = async (waw) => {
 							return true;
 						}
 					}
-					if (query.gender) {
-						for (const key of query.gender) {
-							if (key == p.gender) return true;
+					if (query) {
+						if (query.gender) {
+							for (const key of query.gender) {
+								if (key == p.gender) return true;
+							}
 						}
 					}
 					return false;
