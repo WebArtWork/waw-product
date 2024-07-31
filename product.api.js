@@ -216,7 +216,7 @@ module.exports = async (waw) => {
 	waw.on("product_update", productsUpdate);
 	waw.on("product_delete", productsUpdate);
 
-	const fillTags = (tags, id, fillJson) => {
+	const fillTags = (tags, id, fillJson, query) => {
 		for (const tag of tags) {
 			if (tag._id === id) {
 				tag.active = true;
@@ -227,6 +227,11 @@ module.exports = async (waw) => {
 						}
 						if (tag.children.includes(tagId)) {
 							return true;
+						}
+					}
+					if (query.gender) {
+						for (const key of query.gender) {
+							if (key == p.gender) return true;
 						}
 					}
 					return false;
@@ -286,13 +291,12 @@ module.exports = async (waw) => {
 			const params = decodeURIComponent(req.params.tag_id.split("?").pop());
 			req.params.tag_id = req.params.tag_id.split('?')[0];
 			const paramsObject = queryStringToObject(params);
-			console.log(paramsObject);
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
 				tag.active = false;
 			}
 			if (req.params.tag_id) {
-				fillTags(fillJson.tags, req.params.tag_id, fillJson);
+				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
 				fillJson.allProducts = await waw.Product.find({
 					tags: {
