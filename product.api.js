@@ -231,25 +231,20 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				fillJson.products = fillJson.allProducts.filter((p) => {
+				fillJson.products = fillJson.allProducts.filter(product => {
+					let genderMatch = true;
+					let seasonMatch = true;
+				
 					if (query) {
-						if (query.gender) { 
-							for (const key in query.gender) {
-								if (key == p.gender) return true;
-							}
-						}
+					  if (query.gender) {
+						genderMatch = Object.keys(query.gender).includes(product.gender);
+					  }
+					  if (query.season) {
+						seasonMatch = Object.keys(query.season).includes(product.season);
+					  }
 					}
-					return false;
-				});
-				fillJson.products = fillJson.allProducts.filter((p) => {
-					if (query) {
-						if (query.season) { 
-							for (const key in query.season) {
-								if (key == p.season) return true;
-							}
-						}
-					}
-					return false;
+				
+					return genderMatch && seasonMatch;
 				});
 				tag.tags = fillJson.allTags.filter((t) => {
 					return tag._id === t.parent;
