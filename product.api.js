@@ -239,6 +239,7 @@ module.exports = async (waw) => {
 					  if (query.gender) {
 						genderMatch = Object.keys(query.gender).includes(product.gender);
 					  }
+					  console.log(query.season);
 					  if (query.season) {
 						seasonMatch = Object.keys(query.season).includes(product.season);
 					  }
