@@ -231,7 +231,8 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				fillJson.seasons = getUniqueSeasons(fillJson.products);
+				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
+				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
@@ -277,17 +278,17 @@ module.exports = async (waw) => {
 		}
 		return false;
 	};
-	const getUniqueSeasons = (products) => {
-		const seasonsSet = new Set();
+	const getUniqueFields = (products, field) => {
+		const fields = new Set();
 	  
 		products.forEach(product => {
-		  if (product.season) {
-			seasonsSet.add(product.season);
+		  if (product[field]) {
+			fields.add(product[field]);
 		  }
 		});
 	  
-		return Array.from(seasonsSet);
-	  }
+		return Array.from(fields);
+	}
 	const queryStringToObject = (queryString) => {
 		let result = {};
 		let pairs = queryString.split('&');
