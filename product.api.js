@@ -232,7 +232,7 @@ module.exports = async (waw) => {
 					if (query) {
 						console.log(query.gender);
 						if (query.gender) {
-							for (const key of query.gender) {
+							for (const key in query.gender) {
 								if (key == p.gender) return true;
 							}
 						}
