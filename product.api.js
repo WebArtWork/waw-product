@@ -236,7 +236,8 @@ module.exports = async (waw) => {
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
-				
+					let priceMatch = true;
+
 					if (query) {
 					  if (query.gender) {
 						genderMatch = Object.keys(query.gender).includes(product.gender);
@@ -249,11 +250,11 @@ module.exports = async (waw) => {
 						seasonMatch = Object.keys(season).includes(product.season);
 					  }
 					  if (query.price) {
-						console.log(query.price);
+						priceMatch = product.price > Number(Object.keys(season)[0]) && product.price < Number(Object.keys(season)[1])
 					  }
 					}
 				
-					return genderMatch && seasonMatch;
+					return genderMatch && seasonMatch && priceMatch;
 				});
 				tag.tags = fillJson.allTags.filter((t) => {
 					return tag._id === t.parent;
