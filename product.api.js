@@ -248,6 +248,9 @@ module.exports = async (waw) => {
 						}
 						seasonMatch = Object.keys(season).includes(product.season);
 					  }
+					  if (query.price) {
+						console.log(query.price);
+					  }
 					}
 				
 					return genderMatch && seasonMatch;
