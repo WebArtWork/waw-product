@@ -235,7 +235,7 @@ module.exports = async (waw) => {
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				const products = await Productquantity.find({}).populate('size').lean();
 
-				const names = products.map(product => product.name);
+				const names = products.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
 
 				const fillJson = {};
