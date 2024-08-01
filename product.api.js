@@ -24,10 +24,10 @@ module.exports = async (waw) => {
 					return req.user.is.admin
 						? {}
 						: {
-								tags: {
-									$in: req.tagsIds,
-								},
-						  };
+							tags: {
+								$in: req.tagsIds,
+							},
+						};
 				},
 			},
 			{
@@ -83,14 +83,14 @@ module.exports = async (waw) => {
 			query: (req) => {
 				return req.user.is.admin
 					? {
-							_id: req.body._id,
-					  }
+						_id: req.body._id,
+					}
 					: {
-							_id: req.body._id,
-							tags: {
-								$in: req.tagsIds,
-							},
-					  };
+						_id: req.body._id,
+						tags: {
+							$in: req.tagsIds,
+						},
+					};
 			},
 		},
 		delete: {
@@ -233,7 +233,14 @@ module.exports = async (waw) => {
 				});
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
-				fillJson.ages = await waw.Productquantity.distinct('size').populate('size').lean();
+				const products = await Productquantity.find({}).populate('size').lean();
+
+				const names = products.map(product => product.name);
+				const uniqueNames = [...new Set(names)];
+
+				const fillJson = {};
+				fillJson.ages = uniqueNames;
+
 				console.log(fillJson.ages);
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
@@ -241,21 +248,21 @@ module.exports = async (waw) => {
 					let priceMatch = true;
 
 					if (query) {
-					  if (query.gender) {
-						genderMatch = Object.keys(query.gender).includes(product.gender);
-					  }
-					  if (query.season) {
-						let season = {};
-						for (const key in query.season) {
-							season[key.replace(/\+/g, ' ')] = query.season[key];
+						if (query.gender) {
+							genderMatch = Object.keys(query.gender).includes(product.gender);
 						}
-						seasonMatch = Object.keys(season).includes(product.season);
-					  }
-					  if (query.price) {
-						priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys()[1])
-					  }
+						if (query.season) {
+							let season = {};
+							for (const key in query.season) {
+								season[key.replace(/\+/g, ' ')] = query.season[key];
+							}
+							seasonMatch = Object.keys(season).includes(product.season);
+						}
+						if (query.price) {
+							priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys()[1])
+						}
 					}
-				
+
 					return genderMatch && seasonMatch && priceMatch;
 				});
 				tag.tags = fillJson.allTags.filter((t) => {
@@ -286,13 +293,13 @@ module.exports = async (waw) => {
 	};
 	const getUniqueFields = (products, field) => {
 		const fields = new Set();
-	  
+
 		products.forEach(product => {
-		  if (product[field]) {
-			fields.add(product[field]);
-		  }
+			if (product[field]) {
+				fields.add(product[field]);
+			}
 		});
-	  
+
 		return Array.from(fields);
 	}
 	const queryStringToObject = (queryString) => {
@@ -300,22 +307,22 @@ module.exports = async (waw) => {
 		let pairs = queryString.split('&');
 
 		pairs.forEach(pair => {
-		  let [key, value] = pair.split('=');
-		  
-		  key = decodeURIComponent(key);
-		  value = decodeURIComponent(value);
-		  
-		  let values = value.split(',');
-		  
-		  if (!result[key]) {
-			result[key] = {};
-		  }
-		  
-		  values.forEach(val => {
-			result[key][val] = true;
-		  });
+			let [key, value] = pair.split('=');
+
+			key = decodeURIComponent(key);
+			value = decodeURIComponent(value);
+
+			let values = value.split(',');
+
+			if (!result[key]) {
+				result[key] = {};
+			}
+
+			values.forEach(val => {
+				result[key][val] = true;
+			});
 		});
-		
+
 		return result;
 	}
 	waw.addJson(
