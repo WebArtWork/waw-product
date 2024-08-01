@@ -250,7 +250,7 @@ module.exports = async (waw) => {
 						seasonMatch = Object.keys(season).includes(product.season);
 					  }
 					  if (query.price) {
-						priceMatch = product.price > Number(Object.keys(season)[0]) && product.price < Number(Object.keys(season)[1])
+						priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys(query.price)[1])
 					  }
 					}
 				
