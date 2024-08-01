@@ -216,7 +216,7 @@ module.exports = async (waw) => {
 	waw.on("product_update", productsUpdate);
 	waw.on("product_delete", productsUpdate);
 
-	const fillTags = (tags, id, fillJson, query) => {
+	const fillTags = async (tags, id, fillJson, query) => {
 		for (const tag of tags) {
 			if (tag._id === id) {
 				tag.active = true;
@@ -233,6 +233,8 @@ module.exports = async (waw) => {
 				});
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
+				fillJson.ages = await waw.Productquantity.distinct('size').populate('size').lean();
+				console.log(fillJson.ages);
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
@@ -250,7 +252,7 @@ module.exports = async (waw) => {
 						seasonMatch = Object.keys(season).includes(product.season);
 					  }
 					  if (query.price) {
-						priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys(query.price)[1])
+						priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys()[1])
 					  }
 					}
 				
