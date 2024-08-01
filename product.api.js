@@ -238,7 +238,6 @@ module.exports = async (waw) => {
 				const names = products.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
 
-				const fillJson = {};
 				fillJson.ages = uniqueNames;
 
 				console.log(fillJson.ages);
