@@ -271,9 +271,6 @@ module.exports = async (waw) => {
 						}
 						
 						if (query.age) {
-							console.log(product.size);
-							console.log(Object.keys(query.age)[0]);
-							
 							ageMatch = product.size.some((el) => el.quantity > 0 && el.size.name == Object.keys(query.age)[0]);
 						}
 					}
