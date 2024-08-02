@@ -264,7 +264,9 @@ module.exports = async (waw) => {
 						if (query.price) {
 							priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys(query.price)[1])
 						}
-						console.log(product);
+						console.log(query.age);
+						console.log(fillJson.quantities.find((el) => el.product == product._id));
+						
 						if (query.age) {
 							let quantity = fillJson.quantities.find((el) => el.product == product._id);
 							ageMatch = quantity ? quantity.size.name == query.age : false;
