@@ -234,7 +234,6 @@ module.exports = async (waw) => {
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 				
 				fillJson.quantities = fillJson.quantities.filter(quantity => {
-					console.log(quantity);
 					if (quantity.quantity == 0) return false;
 					return fillJson.products.some(product => product._id.toString() == quantity.product.toString())
 				});
@@ -272,7 +271,7 @@ module.exports = async (waw) => {
 						}
 						
 						if (query.age) {
-							let quantity = fillJson.quantities.find((el) => el.product == product._id);
+							let quantity = fillJson.quantities.find((el) => el.product.toString() == product._id.toString());
 							ageMatch = quantity ? quantity.size.name == Object.keys(query.age)[0] : false;
 						}
 					}
