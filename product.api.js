@@ -232,7 +232,6 @@ module.exports = async (waw) => {
 					return false;
 				});
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
-				console.log(fillJson.products);
 				
 				fillJson.quantities = fillJson.quantities.filter(quantity => 
 					fillJson.products.some(product => product._id.toString() == quantity.product.toString())
