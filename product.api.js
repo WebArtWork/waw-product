@@ -273,7 +273,7 @@ module.exports = async (waw) => {
 						if (query.age) {
 							let quantity = fillJson.quantities.find((el) => el.product.toString() == product._id.toString());
 							if (quantity) {
-								console.log(product);
+								console.log(product.size[0].size);
 								
 							}
 							ageMatch = quantity ? quantity.size.name == Object.keys(query.age)[0] : false;
