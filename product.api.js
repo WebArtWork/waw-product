@@ -233,9 +233,10 @@ module.exports = async (waw) => {
 				});
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 				
-				fillJson.quantities = fillJson.quantities.filter(quantity => 
-					fillJson.products.some(product => product._id.toString() == quantity.product.toString())
-				);
+				fillJson.quantities = fillJson.quantities.filter(quantity => {
+					if (quantity.quantity == 0) return false;
+					return fillJson.products.some(product => product._id.toString() == quantity.product.toString())
+				});
 				const names = fillJson.quantities.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
