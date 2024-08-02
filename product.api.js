@@ -216,7 +216,7 @@ module.exports = async (waw) => {
 	waw.on("product_update", productsUpdate);
 	waw.on("product_delete", productsUpdate);
 
-	const fillTags = async (tags, id, fillJson, query) => {
+	const fillTags = (tags, id, fillJson, query) => {
 		for (const tag of tags) {
 			if (tag._id === id) {
 				tag.active = true;
@@ -231,10 +231,9 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				const products = await waw.Productquantity.find({}).populate('size').lean();
-				const names = products.map(product => product.size.name);
-				const uniqueNames = [...new Set(names)];
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
+				const names = fillJson.quantities.map(product => product.size.name);
+				const uniqueNames = [...new Set(names)];
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				fillJson.ages = uniqueNames.map((el) => {
 					let title = el;
@@ -246,7 +245,6 @@ module.exports = async (waw) => {
 						value: el
 					};
 				});
-				console.log(fillJson.ages);
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
@@ -333,6 +331,7 @@ module.exports = async (waw) => {
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
+			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
 			const params = decodeURIComponent(req.params.tag_id.split("?").pop());
 			req.params.tag_id = req.params.tag_id.split('?')[0];
 			const paramsObject = queryStringToObject(params);
