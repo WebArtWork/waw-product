@@ -266,7 +266,8 @@ module.exports = async (waw) => {
 						}
 						console.log(product);
 						if (query.age) {
-							ageMatch = product.size.name == query.age;
+							let quantity = fillJson.quantities.find((el) => el.product == product._id);
+							ageMatch = quantity ? quantity.size.name == query.age : false;
 						}
 					}
 
@@ -386,7 +387,6 @@ module.exports = async (waw) => {
 			} else {
 				// handle no found product
 			}
-			console.log(req.params, fillJson.product);
 		},
 		"Add tags and product to json"
 	);
