@@ -264,7 +264,7 @@ module.exports = async (waw) => {
 						if (query.price) {
 							priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys(query.price)[1])
 						}
-						console.log(query.age);
+						console.log(product);
 						if (query.age) {
 							ageMatch = product.size.name == query.age;
 						}
@@ -351,7 +351,7 @@ module.exports = async (waw) => {
 						$in: fillJson.tagsIds,
 					},
 					enabled: true,
-				}).lean();
+				}).populate('size').lean();
 				for (const product of fillJson.allProducts) {
 					product.id = product._id.toString();
 					product._id = product._id.toString();
