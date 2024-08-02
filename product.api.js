@@ -231,11 +231,11 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
-				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				const products = await waw.Productquantity.find({}).populate('size').lean();
 				const names = products.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
+				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
+				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				fillJson.ages = uniqueNames.map((el) => {
 					let title = el;
 					if (title.includes('/')) {
