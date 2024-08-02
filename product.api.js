@@ -237,13 +237,13 @@ module.exports = async (waw) => {
 
 				const names = products.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
-				fillJson.newAges = uniqueNames.map((el) => {
+				fillJson.ages = uniqueNames.map((el) => {
 					return {
 						title: `${el.split('/')[0]} років (${el.split('/')[1]} см)`,
 						value: el
 					};
 				});
-				console.log(fillJson.newAges);
+				console.log(fillJson.ages);
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
