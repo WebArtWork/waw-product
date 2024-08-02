@@ -234,12 +234,15 @@ module.exports = async (waw) => {
 				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 				const products = await waw.Productquantity.find({}).populate('size').lean();
-
 				const names = products.map(product => product.size.name);
 				const uniqueNames = [...new Set(names)];
 				fillJson.ages = uniqueNames.map((el) => {
+					let title = el;
+					if (title.includes('/')) {
+						title = `${title.split('/')[0]} років (${title.split('/')[1]} см)`;
+					}
 					return {
-						title: `${el.split('/')[0]} років (${el.split('/')[1]} см)`,
+						title: title,
 						value: el
 					};
 				});
