@@ -359,7 +359,7 @@ module.exports = async (waw) => {
 						$in: fillJson.tagsIds,
 					},
 					enabled: true,
-				}).populate('size').lean();
+				}).lean();
 				for (const product of fillJson.allProducts) {
 					product.id = product._id.toString();
 					product._id = product._id.toString();
