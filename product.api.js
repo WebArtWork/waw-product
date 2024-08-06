@@ -341,9 +341,12 @@ module.exports = async (waw) => {
 		"storeProducts",
 		async (store, fillJson, req) => {
 			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
-			const params = decodeURIComponent(req.params.tag_id.split("?").pop());
-			req.params.tag_id = req.params.tag_id.split('?')[0];
-			const paramsObject = queryStringToObject(params);
+			let paramsObject;
+			if (req.params.tag_id) {
+				const params = decodeURIComponent(req.params.tag_id.split("?").pop());
+				req.params.tag_id = req.params.tag_id.split('?')[0];
+				paramsObject = queryStringToObject(params);
+			}
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
 				tag.active = false;
