@@ -185,6 +185,7 @@ module.exports = async (waw) => {
 					product.size = await waw.Productquantity.find({
 						product: product._id,
 					}).populate('size').lean();
+					product.size.size._id = product.size.size._id.toString();
 				}
 				fillJson.top_products = fillJson.allProducts.filter((p) => {
 					return p.top;
