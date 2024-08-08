@@ -368,6 +368,25 @@ module.exports = async (waw) => {
 					);
 				}
 				fillJson.products = fillJson.allProducts.slice();
+				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
+				
+				fillJson.quantities = fillJson.quantities.filter(quantity => {
+					if (quantity.quantity == 0) return false;
+					return fillJson.products.some(product => product._id.toString() == quantity.product.toString())
+				});
+				const names = fillJson.quantities.map(product => product.size.name);
+				const uniqueNames = [...new Set(names)];
+				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
+				fillJson.ages = uniqueNames.map((el) => {
+					let title = el;
+					if (title.includes('/')) {
+						title = `${title.split('/')[0]} років (${title.split('/')[1]} см)`;
+					}
+					return {
+						title: title,
+						value: el
+					};
+				});
 			}
 			const tag = getTag(fillJson.tags);
 			if (tag) {
