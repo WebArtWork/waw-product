@@ -340,6 +340,8 @@ module.exports = async (waw) => {
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
+			console.log(req.params);
+			
 			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
 			let paramsObject;
 			if (req.params.tag_id) {
