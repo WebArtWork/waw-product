@@ -115,6 +115,7 @@ module.exports = async (waw) => {
 					_id: req.body._id,
 				};
 			},
+			name: 'populated'
 		},
 		create: {
 			ensure: async (req, res, next) => {
