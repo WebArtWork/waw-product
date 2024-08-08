@@ -111,6 +111,8 @@ module.exports = async (waw) => {
 		fetch: {
 			ensure: waw.next,
 			query: (req) => {
+				console.log(req);
+				
 				return {
 					_id: req.body._id,
 				};
