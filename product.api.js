@@ -376,6 +376,7 @@ module.exports = async (waw) => {
 						t.toString()
 					);
 				}
+				fillJson.products = fillJson.allProducts.slice();
 				processProductData(fillJson);
 			}
 			const tag = getTag(fillJson.tags);
@@ -416,18 +417,6 @@ module.exports = async (waw) => {
 		"Add favorited product to json"
 	);
 
-	const save_file = (doc) => {
-		if (doc.thumb) {
-			waw.save_file(doc.thumb);
-		}
-
-		if (doc.thumbs) {
-			for (const thumb of doc.thumbs) {
-				waw.save_file(thumb);
-			}
-		}
-	};
-
 	const processProductData = (fillJson) => {
 		fillJson.seasons = getUniqueFields(fillJson.products, 'season');
 	
@@ -449,6 +438,18 @@ module.exports = async (waw) => {
 				value: el
 			};
 		});
+	};
+
+	const save_file = (doc) => {
+		if (doc.thumb) {
+			waw.save_file(doc.thumb);
+		}
+
+		if (doc.thumbs) {
+			for (const thumb of doc.thumbs) {
+				waw.save_file(thumb);
+			}
+		}
 	};
 	waw.on("product_create", save_file);
 	waw.on("product_update", save_file);
