@@ -351,15 +351,42 @@ module.exports = async (waw) => {
 				tag.tags = [];
 				tag.active = false;
 			}
+
+			let query = {
+				tags: {
+					$in: fillJson.tagsIds,
+				},
+				enabled: true
+			};
+
 			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
-				fillJson.allProducts = await waw.Product.find({
-					tags: {
-						$in: fillJson.tagsIds,
-					},
-					enabled: true,
-				}).lean();
+				if (paramsObject) {
+					if (paramsObject.gender) {
+						query.gender = { $in: Object.keys(paramsObject.gender) };
+					}
+					if (paramsObject.season) {
+						let season = {};
+						for (const key in paramsObject.season) {
+							season[key.replace(/\+/g, ' ')] = paramsObject.season[key];
+						}
+						query.season = { $in: Object.keys(season) };
+					}
+					if (paramsObject.price) {
+						const priceKeys = Object.keys(paramsObject.price);
+						if (priceKeys.length === 2) {
+							query.price = { $gt: Number(priceKeys[0]), $lt: Number(priceKeys[1]) };
+						}
+					}
+					if (paramsObject.age) {
+						const ageKeys = Object.keys(paramsObject.age);
+						query['size.name'] = { $in: ageKeys };
+						query['size.quantity'] = { $gt: 0 };
+					}
+				}
+		
+				fillJson.allProducts = await waw.Product.find(query).lean();
 				for (const product of fillJson.allProducts) {
 					product.id = product._id.toString();
 					product._id = product._id.toString();
