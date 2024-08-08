@@ -5,7 +5,6 @@
 		{
 			"name": "product",
 			"get": ["", "public", "crafts", "links"],
-			"fetch": ["", "populated"],
 			"unique": ["url"],
 			"update": {
 				"keys": [
