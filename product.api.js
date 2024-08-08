@@ -187,9 +187,9 @@ module.exports = async (waw) => {
 					}).populate('size').lean();
 
 					if (product.size) {
-						console.log(product.size);
-						
-						product.size.size._id = product.size.size._id.toString();
+						product.size.forEach(size => {
+							size.size._id = size.size.size._id.toString();
+						});
 					}
 				}
 				fillJson.top_products = fillJson.allProducts.filter((p) => {
