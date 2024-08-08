@@ -231,25 +231,7 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
-				
-				fillJson.quantities = fillJson.quantities.filter(quantity => {
-					if (quantity.quantity == 0) return false;
-					return fillJson.products.some(product => product._id.toString() == quantity.product.toString())
-				});
-				const names = fillJson.quantities.map(product => product.size.name);
-				const uniqueNames = [...new Set(names)];
-				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
-				fillJson.ages = uniqueNames.map((el) => {
-					let title = el;
-					if (title.includes('/')) {
-						title = `${title.split('/')[0]} років (${title.split('/')[1]} см)`;
-					}
-					return {
-						title: title,
-						value: el
-					};
-				});
+				processProductData(fillJson);
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
@@ -340,8 +322,6 @@ module.exports = async (waw) => {
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
-			console.log(req.params);
-			
 			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
 			let paramsObject;
 			if (req.params.tag_id) {
@@ -396,26 +376,7 @@ module.exports = async (waw) => {
 						t.toString()
 					);
 				}
-				fillJson.products = fillJson.allProducts.slice();
-				fillJson.seasons = getUniqueFields(fillJson.products, 'season');
-				
-				fillJson.quantities = fillJson.quantities.filter(quantity => {
-					if (quantity.quantity == 0) return false;
-					return fillJson.products.some(product => product._id.toString() == quantity.product.toString())
-				});
-				const names = fillJson.quantities.map(product => product.size.name);
-				const uniqueNames = [...new Set(names)];
-				fillJson.genders = getUniqueFields(fillJson.products, 'gender');
-				fillJson.ages = uniqueNames.map((el) => {
-					let title = el;
-					if (title.includes('/')) {
-						title = `${title.split('/')[0]} років (${title.split('/')[1]} см)`;
-					}
-					return {
-						title: title,
-						value: el
-					};
-				});
+				processProductData(fillJson);
 			}
 			const tag = getTag(fillJson.tags);
 			if (tag) {
@@ -465,6 +426,29 @@ module.exports = async (waw) => {
 				waw.save_file(thumb);
 			}
 		}
+	};
+
+	const processProductData = (fillJson) => {
+		fillJson.seasons = getUniqueFields(fillJson.products, 'season');
+	
+		fillJson.quantities = fillJson.quantities.filter(quantity => {
+			if (quantity.quantity == 0) return false;
+			return fillJson.products.some(product => product._id.toString() == quantity.product.toString());
+		});
+	
+		const names = fillJson.quantities.map(product => product.size.name);
+		const uniqueNames = [...new Set(names)];
+		fillJson.genders = getUniqueFields(fillJson.products, 'gender');
+		fillJson.ages = uniqueNames.map((el) => {
+			let title = el;
+			if (title.includes('/')) {
+				title = `${title.split('/')[0]} років (${title.split('/')[1]} см)`;
+			}
+			return {
+				title: title,
+				value: el
+			};
+		});
 	};
 	waw.on("product_create", save_file);
 	waw.on("product_update", save_file);
