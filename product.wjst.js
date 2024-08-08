@@ -8,7 +8,9 @@ class Product extends Crud {
 
 	async populated() {
 		try {
+			console.log('start');
 			const product = await this.fetch({ name: "populated" });
+			console.log(product);
 			return product;
 		} catch (error) {
 			throw new Error(`Failed to populate: ${error.message}`);
