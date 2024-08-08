@@ -187,6 +187,8 @@ module.exports = async (waw) => {
 					}).populate('size').lean();
 
 					if (product.size) {
+						console.log(product.size);
+						
 						product.size.size._id = product.size.size._id.toString();
 					}
 				}
