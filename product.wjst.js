@@ -5,15 +5,6 @@ class Product extends Crud {
 	constructor() {
 		super('/api/product');
 	}
-
-	async populated() {
-		try {
-			const product = await this.fetch({ name: "populated" });
-			return product;
-		} catch (error) {
-			throw new Error(`Failed to populate: ${error.message}`);
-		}
-	}
 }
 
 export default new Product();
