@@ -111,8 +111,6 @@ module.exports = async (waw) => {
 		fetch: {
 			ensure: waw.next,
 			query: (req) => {
-				console.log(req);
-				
 				return {
 					_id: req.body._id,
 				};
@@ -182,14 +180,14 @@ module.exports = async (waw) => {
 					product.tags = (product.tags || []).map((t) =>
 						t.toString()
 					);
-					product.size = await waw.Productquantity.find({
+					product.productquantity = await waw.Productquantity.find({
 						product: product._id,
 					}).populate('size').lean();
 
-					if (product.size) {
-						product.size.forEach(size => {
-							size._id = size._id.toString();
-							size.size._id = size.size._id.toString();
+					if (product.productquantity) {
+						product.productquantity.forEach(productquantity => {
+							productquantity._id = productquantity._id.toString();
+							productquantity.size._id = productquantity.size._id.toString();
 						});
 					}
 				}
