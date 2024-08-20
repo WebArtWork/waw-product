@@ -332,6 +332,8 @@ module.exports = async (waw) => {
 		async (store, fillJson, req) => {
 			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
 			let paramsObject;
+			console.log(req);
+			
 			if (req.params.tag_id) {
 				const params = decodeURIComponent(req.params.tag_id.split("?").pop());
 				req.params.tag_id = req.params.tag_id.split('?')[0];
