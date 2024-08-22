@@ -239,13 +239,16 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
+				
 				processProductData(fillJson);
+				
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
 					let priceMatch = true;
 					let ageMatch = true;
 					if (query) {
+						
 						if (query.gender) {
 							genderMatch = Object.keys(query.gender).includes(product.gender);
 						}
@@ -261,7 +264,7 @@ module.exports = async (waw) => {
 						}
 						
 						if (query.age) {
-							ageMatch = product.size.some((el) => el.quantity > 0 && el.size.name == Object.keys(query.age)[0]);
+							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(query.age)[0]);
 						}
 					}
 
@@ -304,40 +307,36 @@ module.exports = async (waw) => {
 
 		return Array.from(fields);
 	}
-	const queryStringToObject = (queryString) => {
+	const queryObjectToParsedObject = (queryObject) => {
 		let result = {};
-		let pairs = queryString.split('&');
-
-		pairs.forEach(pair => {
-			let [key, value] = pair.split('=');
-
-			key = decodeURIComponent(key);
-			value = decodeURIComponent(value);
-
-			let values = value.split(',');
-
-			if (!result[key]) {
-				result[key] = {};
+		
+		Object.keys(queryObject).forEach(key => {
+			let value = queryObject[key];
+	
+			if (value.includes(',')) {
+				
+					let values = value.split(',');
+					result[key] = {};
+					values.forEach(val => {
+						result[key][val] = true;
+					});
+				
+			} else {
+				result[key] = { [value]: true };
 			}
-
-			values.forEach(val => {
-				result[key][val] = true;
-			});
 		});
-
+		
 		return result;
-	}
+	};
+	
+	
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
 			fillJson.quantities = await waw.Productquantity.find({}).populate('size').lean();
-			let paramsObject;
-			console.log(req);
-			
+			let paramsObject = queryObjectToParsedObject(req.query);
 			if (req.params.tag_id) {
-				const params = decodeURIComponent(req.params.tag_id.split("?").pop());
 				req.params.tag_id = req.params.tag_id.split('?')[0];
-				paramsObject = queryStringToObject(params);
 			}
 			for (const tag of fillJson.allTags) {
 				tag.tags = [];
@@ -350,34 +349,10 @@ module.exports = async (waw) => {
 				},
 				enabled: true
 			};
-
-			if (req.params.tag_id) {
+			
+			if (req.params.tag_id) {		
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
-				if (paramsObject) {
-					if (paramsObject.gender) {
-						query.gender = { $in: Object.keys(paramsObject.gender) };
-					}
-					if (paramsObject.season) {
-						let season = {};
-						for (const key in paramsObject.season) {
-							season[key.replace(/\+/g, ' ')] = paramsObject.season[key];
-						}
-						query.season = { $in: Object.keys(season) };
-					}
-					if (paramsObject.price) {
-						const priceKeys = Object.keys(paramsObject.price);
-						if (priceKeys.length === 2) {
-							query.price = { $gt: Number(priceKeys[0]), $lt: Number(priceKeys[1]) };
-						}
-					}
-					if (paramsObject.age) {
-						const ageKeys = Object.keys(paramsObject.age);
-						query['size.name'] = { $in: ageKeys };
-						query['size.quantity'] = { $gt: 0 };
-					}
-				}
-		
 				fillJson.allProducts = await waw.Product.find(query).lean();
 				for (const product of fillJson.allProducts) {
 					product.id = product._id.toString();
@@ -388,6 +363,33 @@ module.exports = async (waw) => {
 				}
 				fillJson.products = fillJson.allProducts.slice();
 				processProductData(fillJson);
+				fillJson.products = fillJson.products.filter(product => {
+					let genderMatch = true;
+					let seasonMatch = true;
+					let priceMatch = true;
+					let ageMatch = true;
+					if (paramsObject) {
+						if (paramsObject.gender) {
+							genderMatch = Object.keys(paramsObject.gender).includes(product.gender);
+						}
+						if (paramsObject.season) {
+							let season = {};
+							for (const key in paramsObject.season) {
+								season[key.replace(/\+/g, ' ')] = paramsObject.season[key];
+							}
+							seasonMatch = Object.keys(season).includes(product.season);
+						}
+						if (paramsObject.price) {
+							priceMatch = product.price > Number(Object.keys(paramsObject.price)[0]) && product.price < Number(Object.keys(paramsObject.price)[1])
+						}
+						
+						if (paramsObject.age) {
+							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(paramsObject.age)[0]);
+						}
+					}
+
+					return genderMatch && seasonMatch && priceMatch && ageMatch;
+				});
 			}
 			const tag = getTag(fillJson.tags);
 			if (tag) {
@@ -448,6 +450,18 @@ module.exports = async (waw) => {
 				value: el
 			};
 		});
+
+		const prices = fillJson.products.reduce((acc, product) => {
+			const roundedPrice = Math.ceil(product.price / 10) * 10;
+		
+			if (roundedPrice < acc.min) acc.min = roundedPrice;
+			if (roundedPrice > acc.max) acc.max = roundedPrice;
+		
+			return acc;
+		}, { min: Infinity, max: -Infinity });
+
+		fillJson.minPrice = prices.min;
+		fillJson.maxPrice = prices.max;
 	};
 
 	const save_file = (doc) => {
