@@ -46,6 +46,10 @@ module.exports = function (waw) {
 				ref: "User",
 			},
 		],
+		store: {
+			type: waw.mongoose.Schema.Types.ObjectId,
+			ref: "Store",
+		}
 	});
 
 	Schema.methods.create = function (obj, user, waw) {
@@ -70,6 +74,7 @@ module.exports = function (waw) {
 		this.data = obj.data;
 		this.isTemplate = obj.isTemplate;
 		this.template = obj.template;
+		this.store = obj.store;
 	};
 
 	return (waw.Product = waw.mongoose.model("Product", Schema));
