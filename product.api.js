@@ -20,7 +20,7 @@ module.exports = async (waw) => {
 		get: [
 			{
 				ensure,
-				query: (req) => {
+				query: (req) => { 
 					return req.user.is.admin
 						? {}
 						: {
