@@ -22,7 +22,8 @@
 					"tag",
 					"tags",
 					"sale",
-					"data"
+					"data",
+					"store"
 				]
 			},
 			"delete": [""]
