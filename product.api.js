@@ -20,7 +20,7 @@ module.exports = async (waw) => {
 		get: [
 			{
 				ensure,
-				query: (req) => { 
+				query: (req) => {
 					return req.user.is.admin
 						? {}
 						: {
@@ -239,16 +239,16 @@ module.exports = async (waw) => {
 					}
 					return false;
 				});
-				
+
 				processProductData(fillJson);
-				
+
 				fillJson.products = fillJson.products.filter(product => {
 					let genderMatch = true;
 					let seasonMatch = true;
 					let priceMatch = true;
 					let ageMatch = true;
 					if (query) {
-						
+
 						if (query.gender) {
 							genderMatch = Object.keys(query.gender).includes(product.gender);
 						}
@@ -262,7 +262,7 @@ module.exports = async (waw) => {
 						if (query.price) {
 							priceMatch = product.price > Number(Object.keys(query.price)[0]) && product.price < Number(Object.keys(query.price)[1])
 						}
-						
+
 						if (query.age) {
 							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(query.age)[0]);
 						}
@@ -309,27 +309,27 @@ module.exports = async (waw) => {
 	}
 	const queryObjectToParsedObject = (queryObject) => {
 		let result = {};
-		
+
 		Object.keys(queryObject).forEach(key => {
 			let value = queryObject[key];
-	
+
 			if (value.includes(',')) {
-				
-					let values = value.split(',');
-					result[key] = {};
-					values.forEach(val => {
-						result[key][val] = true;
-					});
-				
+
+				let values = value.split(',');
+				result[key] = {};
+				values.forEach(val => {
+					result[key][val] = true;
+				});
+
 			} else {
 				result[key] = { [value]: true };
 			}
 		});
-		
+
 		return result;
 	};
-	
-	
+
+
 	waw.addJson(
 		"storeProducts",
 		async (store, fillJson, req) => {
@@ -349,8 +349,8 @@ module.exports = async (waw) => {
 				},
 				enabled: true
 			};
-			
-			if (req.params.tag_id) {		
+
+			if (req.params.tag_id) {
 				fillTags(fillJson.tags, req.params.tag_id, fillJson, paramsObject);
 			} else {
 				fillJson.allProducts = await waw.Product.find(query).lean();
@@ -382,7 +382,7 @@ module.exports = async (waw) => {
 						if (paramsObject.price) {
 							priceMatch = product.price > Number(Object.keys(paramsObject.price)[0]) && product.price < Number(Object.keys(paramsObject.price)[1])
 						}
-						
+
 						if (paramsObject.age) {
 							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(paramsObject.age)[0]);
 						}
@@ -431,13 +431,14 @@ module.exports = async (waw) => {
 
 	const processProductData = (fillJson) => {
 		fillJson.seasons = getUniqueFields(fillJson.products, 'season');
-	
+
 		fillJson.quantities = fillJson.quantities.filter(quantity => {
 			if (quantity.quantity == 0) return false;
 			return fillJson.products.some(product => product._id.toString() == quantity.product.toString());
 		});
-	
-		const names = fillJson.quantities.map(product => product.size.name);
+
+		const names = fillJson.quantities.map(product =>
+			product?.size?.name || '');
 		const uniqueNames = [...new Set(names)];
 		fillJson.genders = getUniqueFields(fillJson.products, 'gender');
 		fillJson.ages = uniqueNames.map((el) => {
@@ -453,10 +454,10 @@ module.exports = async (waw) => {
 
 		const prices = fillJson.products.reduce((acc, product) => {
 			const roundedPrice = Math.ceil(product.price / 10) * 10;
-		
+
 			if (roundedPrice < acc.min) acc.min = roundedPrice;
 			if (roundedPrice > acc.max) acc.max = roundedPrice;
-		
+
 			return acc;
 		}, { min: Infinity, max: -Infinity });
 
