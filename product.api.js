@@ -187,7 +187,9 @@ module.exports = async (waw) => {
 					if (product.productquantity) {
 						product.productquantity.forEach(productquantity => {
 							productquantity._id = productquantity._id.toString();
-							productquantity.size._id = productquantity.size._id.toString();
+							if(productquantity.size) {
+								productquantity.size._id = productquantity.size._id.toString();
+							}
 						});
 					}
 				}
