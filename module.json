@@ -23,7 +23,8 @@
 					"tags",
 					"sale",
 					"data",
-					"store"
+					"store",
+					"related_products"
 				]
 			},
 			"delete": [""]
