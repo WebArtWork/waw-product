@@ -49,11 +49,20 @@ module.exports = function (waw) {
 		store: {
 			type: waw.mongoose.Schema.Types.ObjectId,
 			ref: "Store",
-		}
+		},
+		related_products: [
+			{
+				type: waw.mongoose.Schema.Types.ObjectId,
+				sparse: true,
+				ref: "Product",
+			},
+		]
+
 	});
 
 	Schema.methods.create = function (obj, user, waw) {
 		this.author = user._id;
+		this.related_products = obj.related_products;
 		this.moderators = [user._id];
 		this.top = obj.top;
 		this.enabled = obj.enabled;
