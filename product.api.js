@@ -370,6 +370,7 @@ module.exports = async (waw) => {
 					let seasonMatch = true;
 					let priceMatch = true;
 					let ageMatch = true;
+					let searchMatch = true;
 					if (paramsObject) {
 						if (paramsObject.gender) {
 							genderMatch = Object.keys(paramsObject.gender).includes(product.gender);
@@ -388,9 +389,13 @@ module.exports = async (waw) => {
 						if (paramsObject.age) {
 							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(paramsObject.age)[0]);
 						}
+						if (paramsObject.search) {
+							const searchTerm = Object.keys(paramsObject.search)[0].toLowerCase();
+							searchMatch = product.name.toLowerCase().includes(searchTerm);
+						}
 					}
 
-					return genderMatch && seasonMatch && priceMatch && ageMatch;
+					return genderMatch && seasonMatch && priceMatch && ageMatch && searchMatch;
 				});
 			}
 			const tag = getTag(fillJson.tags);
