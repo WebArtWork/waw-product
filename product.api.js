@@ -391,7 +391,8 @@ module.exports = async (waw) => {
 						}
 						if (paramsObject.search) {
 							const searchTerm = Object.keys(paramsObject.search)[0].toLowerCase();
-							searchMatch = product.name.toLowerCase().includes(searchTerm);
+							searchMatch = product.name.toLowerCase().includes(searchTerm) ||
+										  product.description.toLowerCase().includes(searchTerm);
 						}
 					}
 
