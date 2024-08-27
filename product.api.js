@@ -249,6 +249,7 @@ module.exports = async (waw) => {
 					let seasonMatch = true;
 					let priceMatch = true;
 					let ageMatch = true;
+					let searchMatch = true;
 					if (query) {
 
 						if (query.gender) {
@@ -267,6 +268,12 @@ module.exports = async (waw) => {
 
 						if (query.age) {
 							ageMatch = fillJson.quantities.some((el) => el.product == product._id && el.quantity > 0 && el.size.name == Object.keys(query.age)[0]);
+						}
+						if (paramsObject.search) {
+							const searchTerm = Object.keys(paramsObject.search)[0].toLowerCase();
+							searchMatch = product.name.toLowerCase().includes(searchTerm) ||
+										  product.description.toLowerCase().includes(searchTerm)
+							
 						}
 					}
 
@@ -392,7 +399,8 @@ module.exports = async (waw) => {
 						if (paramsObject.search) {
 							const searchTerm = Object.keys(paramsObject.search)[0].toLowerCase();
 							searchMatch = product.name.toLowerCase().includes(searchTerm) ||
-										  product.description.toLowerCase().includes(searchTerm);
+										  product.description.toLowerCase().includes(searchTerm)
+							
 						}
 					}
 
