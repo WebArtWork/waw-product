@@ -277,7 +277,7 @@ module.exports = async (waw) => {
 						}
 					}
 
-					return genderMatch && seasonMatch && priceMatch && ageMatch;
+					return genderMatch && seasonMatch && priceMatch && ageMatch && searchMatch;
 				});
 				tag.tags = fillJson.allTags.filter((t) => {
 					return tag._id === t.parent;
