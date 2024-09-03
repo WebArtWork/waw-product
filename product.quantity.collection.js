@@ -14,9 +14,14 @@ module.exports = async function (waw) {
 			ref: "Product",
 			required: true,
 		},
-	});
-	
+		color: {
+			type: String,
+			required: true
+		}
+	})
+
 	Schema.methods.create = function (obj) {
+		this.color = obj.color;
 		this.size = obj.size;
 		this.quantity = obj.quantity;
 		this.product = obj.product;
